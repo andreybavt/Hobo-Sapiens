@@ -1,4 +1,5 @@
 import asyncio
+import time
 
 import os
 
@@ -13,9 +14,13 @@ class Filter:
 
 
 if __name__ == '__main__':
-    if not os.environ.get('TELEGRAM_BOT_TOKEN'):
-        raise Exception('Environment variable TELEGRAM_BOT_TOKEN should be set to telegram bot token')
+    if not os.environ.get('AF_TELEGRAM_BOT_TOKEN'):
+        raise Exception('Environment variable AF_TELEGRAM_BOT_TOKEN should be set to telegram bot token')
 
+    if not os.environ.get('AF_TELEGRAM_CHAT_ID'):
+        raise Exception('Environment variable AF_TELEGRAM_CHAT_ID should be set to destination chat id')
+
+    from services.pap import Pap
     from notification_sender import NotificationSender
     from services.seloger import Seloger
     from services.laforet import Laforet
@@ -27,11 +32,13 @@ if __name__ == '__main__':
                         max_price=1300,
                         min_area=25)
 
-    services = [Seloger(pub_filter), Laforet(pub_filter), LeBonCoin(pub_filter)]
-
+    services = [Seloger(pub_filter), Laforet(pub_filter), LeBonCoin(pub_filter), Pap(pub_filter)]
     loop = asyncio.get_event_loop()
-    for service in services:
-        loop.run_until_complete(service.run())
-        for n in service.notifications:
-            notification_sender.send_to_chat(n)
-            loop.run_until_complete(service.seen_ids.add(n.id))
+    while True:
+        last_run = time.time()
+        for service in services:
+            loop.run_until_complete(service.main_run())
+            for n in service.notifications:
+                notification_sender.send_to_chat(n)
+                loop.run_until_complete(service.seen_ids.add(n.id))
+        time.sleep(max(60 * 5 - (time.time() - last_run), 0))

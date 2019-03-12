@@ -77,7 +77,7 @@ class Seloger(AbstractService):
         det_resp = await self.client.patient_fetch(
             HTTPRequest(method='GET', url=self.announce_url + str(pub_id)), connect_timeout=4, request_timeout=8)
         det = json.loads(det_resp.body.decode())
-        retries = 3
+        retries = 10
         images = []
         while retries > 0 and len(images) == 0:
             retries -= 1

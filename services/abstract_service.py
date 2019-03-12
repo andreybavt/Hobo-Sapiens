@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from crawler_utils.async_proxy import AsyncProxyClient
@@ -50,3 +51,7 @@ class AbstractService:
 
     async def filter_out_seen(self, candidates):
         return [e for e in candidates if not await self.seen_ids.has(self.get_service_prefixed_id(e))]
+
+    async def main_run(self):
+        logging.info(f"Running for {self.get_service_name()}")
+        await self.run()
