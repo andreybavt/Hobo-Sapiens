@@ -4,10 +4,10 @@ import re
 from tornado.httpclient import HTTPRequest
 from tornado.httputil import url_concat
 
-from find_a_flat.notification_sender import Notification
-from find_a_flat.runner import Filter
-from find_a_flat.services.abstract_service import AbstractService
-from utils import read_prop
+from notification_sender import Notification
+from runner import Filter
+from services.abstract_service import AbstractService
+from crawler_utils.utils import read_prop
 
 
 class LeBonCoin(AbstractService):

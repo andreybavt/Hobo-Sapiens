@@ -1,9 +1,9 @@
 from typing import Optional
 
-from async_proxy import AsyncProxyClient
-from find_a_flat.notification_sender import Notification
-from find_a_flat.runner import Filter
-from utils import PersistentSet
+from crawler_utils.async_proxy import AsyncProxyClient
+from crawler_utils.utils import PersistentSet
+from notification_sender import Notification
+from runner import Filter
 
 
 class AbstractService:

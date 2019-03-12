@@ -3,10 +3,10 @@ import logging
 from bs4 import BeautifulSoup
 from tornado.httpclient import HTTPRequest
 
-from find_a_flat.notification_sender import Notification
-from find_a_flat.runner import Filter
-from find_a_flat.services.abstract_service import AbstractService
-from utils import chunks, read_prop
+from crawler_utils.utils import chunks, read_prop
+from notification_sender import Notification
+from runner import Filter
+from services.abstract_service import AbstractService
 
 
 class Laforet(AbstractService):

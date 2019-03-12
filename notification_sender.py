@@ -29,7 +29,8 @@ class NotificationSender:
         desc = f'Price: {notif.price}\nArea: {notif.area}\nWhere: {notif.location}\nURL: {notif.url} '
         try:
             # chat_id = '-1001121437337'
-            chat_id = '73115329'
+            # chat_id = '73115329'
+            chat_id = environ.get('TELEGRAM_CHAT_ID')
             if notif.pics_urls:
                 for c in chunks(notif.pics_urls, 10):
                     self.updater.bot.send_media_group(chat_id, [InputMediaPhoto(i, caption=desc) for i in c],

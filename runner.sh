@@ -1,1 +1,1 @@
-PYTHONPATH=.. python3 runner.py
+PYTHONPATH=crawler_utils python3 runner.py
