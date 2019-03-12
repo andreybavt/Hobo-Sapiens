@@ -1,13 +1,15 @@
+import asyncio
+
 import json
 import logging
 import re
 from tornado.httpclient import HTTPRequest
 from tornado.httputil import url_concat
 
+from crawler_utils.utils import read_prop
 from notification_sender import Notification
 from runner import Filter
 from services.abstract_service import AbstractService
-from crawler_utils.utils import read_prop
 
 
 class LeBonCoin(AbstractService):
@@ -62,8 +64,6 @@ class LeBonCoin(AbstractService):
 
 
 if __name__ == '__main__':
-    import asyncio
-
     f = Filter(arrondissements=[75001, 75002, 75003], max_price=1300, min_area=25)
     coin = LeBonCoin(f)
     res = asyncio.get_event_loop().run_until_complete(coin.run())

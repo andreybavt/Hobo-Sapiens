@@ -1,3 +1,5 @@
+import asyncio
+
 import json
 import logging
 from bs4 import BeautifulSoup
@@ -71,8 +73,6 @@ class Laforet(AbstractService):
 
 
 if __name__ == '__main__':
-    import asyncio
-
     f = Filter(arrondissements=[75001, 75002, 75003, 75004, 75005, 75010, 75011, 75008, 75009], max_price=1300,
                min_area=25)
     laforet = Laforet(f)

@@ -1,3 +1,5 @@
+import asyncio
+
 import json
 import logging
 from bs4 import BeautifulSoup
@@ -62,8 +64,6 @@ class Pap(AbstractService):
 
 
 if __name__ == '__main__':
-    import asyncio
-
     f = Filter(arrondissements=[75001], max_price=1000, min_area=25)
     res = asyncio.get_event_loop().run_until_complete(Pap(f).run())
     logging.info(res)
