@@ -34,7 +34,7 @@ class NotificationSender:
             if notif.pics_urls:
                 for c in chunks(notif.pics_urls, 10):
                     self.updater.bot.send_media_group(chat_id, [InputMediaPhoto(i, caption=desc) for i in c],
-                                                      timeout=20 * 60)
+                                                      timeout=20 * 60, disable_notification=True)
             self.updater.bot.send_message(chat_id, desc, timeout=20 * 60, disable_web_page_preview=True)
         except Exception as e:
             logging.error(e)

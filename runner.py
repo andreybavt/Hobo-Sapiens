@@ -1,6 +1,7 @@
 import asyncio
 import time
 
+import logging
 import os
 
 
@@ -38,7 +39,9 @@ if __name__ == '__main__':
         last_run = time.time()
         for service in services:
             loop.run_until_complete(service.main_run())
-            for n in service.notifications:
+            for (i, n) in enumerate(service.notifications):
+                logging.info(
+                    f"Sending notification {i + 1} of {len(service.notifications)} for {service.get_service_name()}")
                 notification_sender.send_to_chat(n)
                 time.sleep(1)
                 loop.run_until_complete(service.seen_ids.add(n.id))
