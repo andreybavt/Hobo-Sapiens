@@ -40,5 +40,6 @@ if __name__ == '__main__':
             loop.run_until_complete(service.main_run())
             for n in service.notifications:
                 notification_sender.send_to_chat(n)
+                time.sleep(1)
                 loop.run_until_complete(service.seen_ids.add(n.id))
         time.sleep(max(60 * 5 - (time.time() - last_run), 0))
