@@ -1,0 +1,4 @@
+*.log
+proxies*.json
+venv
+.idea/*

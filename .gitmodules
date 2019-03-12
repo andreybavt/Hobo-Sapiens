@@ -1,0 +1,3 @@
+[submodule "crawler_utils"]
+	path = crawler_utils
+	url = git@github.com:andreybavt/crawler_utils.git
