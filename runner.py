@@ -1,6 +1,7 @@
 import asyncio
 import time
 
+import jsonpickle
 import logging
 import os
 
@@ -29,9 +30,8 @@ if __name__ == '__main__':
 
     notification_sender = NotificationSender()
 
-    pub_filter = Filter(arrondissements=[75001, 75002, 75003, 75004, 75005, 75010, 75011, 75008, 75009],
-                        max_price=1300,
-                        min_area=25)
+    with open('filter.json', 'r') as  f:
+        pub_filter = jsonpickle.decode(f.read())
 
     services = [Seloger(pub_filter), Laforet(pub_filter), LeBonCoin(pub_filter), Pap(pub_filter)]
     loop = asyncio.get_event_loop()
