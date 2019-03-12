@@ -3,7 +3,7 @@ from os import environ
 from telegram import InputMediaPhoto
 from telegram.ext import Updater
 
-from crawler_utils.utils import chunks
+from crawler_utils.utils import chunks, nofail
 
 
 class Notification(object):
@@ -23,21 +23,30 @@ class NotificationSender:
 
     def __init__(self) -> None:
         super().__init__()
-        self.updater = Updater(token=environ.get('AF_TELEGRAM_BOT_TOKEN'))
+        self.updater = Updater(token=environ.get('AF_TELEGRAM_BOT_TOKEN'),
+                               request_kwargs={"connect_timeout": 60., "read_timeout": 60.})
 
     def send_to_chat(self, notif: Notification):
-        desc = f'Price: {notif.price}\nArea: {notif.area}\nWhere: {notif.location}\nURL: {notif.url} '
+        desc = f'ID: {notif.id}\nPrice: {notif.price}\nArea: {notif.area}\nWhere: {notif.location}\nURL: {notif.url} '
         try:
             # chat_id = '-1001121437337'
             # chat_id = '73115329'
             chat_id = environ.get('AF_TELEGRAM_CHAT_ID')
             if notif.pics_urls:
                 for c in chunks(notif.pics_urls, 10):
-                    self.updater.bot.send_media_group(chat_id, [InputMediaPhoto(i, caption=desc) for i in c],
-                                                      timeout=20 * 60, disable_notification=True)
-            self.updater.bot.send_message(chat_id, desc, timeout=20 * 60, disable_web_page_preview=True)
+                    self._send_pics(c, chat_id, desc)
+            self._send_message(chat_id, desc)
         except Exception as e:
             logging.error(e)
+
+    @nofail(retries=20)
+    def _send_message(self, chat_id, desc):
+        self.updater.bot.send_message(chat_id, desc, timeout=20 * 60, disable_web_page_preview=True)
+
+    @nofail(retries=20)
+    def _send_pics(self, c, chat_id, desc):
+        self.updater.bot.send_media_group(chat_id, [InputMediaPhoto(i, caption=desc) for i in c],
+                                          timeout=20 * 60, disable_notification=True)
 
 
 if __name__ == '__main__':

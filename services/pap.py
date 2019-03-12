@@ -2,6 +2,7 @@ import asyncio
 
 import json
 import logging
+import re
 from bs4 import BeautifulSoup
 from tornado.httpclient import HTTPRequest
 from typing import Optional
@@ -42,10 +43,12 @@ class Pap(AbstractService):
             pics = [e.find('img')['src'] for e in soup.find_all(attrs={'class': 'owl-thumb-item'})]
             pics.append(soup.find(attrs={'data-fancybox': 'galerie'}).find('img')['src'])
 
+        area_part = item_descr_el.find(attrs={'class', 'item-tags'}).text.strip()
+        area_pos = re.search('[\d|\.]+ m²', area_part).regs[0]
         return Notification(
             price=soup.find(attrs={'class': 'item-price'}).text,
             location=zip_code,
-            area=item_descr_el.find(attrs={'class', 'item-tags'}).text.strip(),
+            area=area_part[area_pos[0]:area_pos[1]],
             url=candidate.url,
             pics_urls=pics
         )
@@ -64,6 +67,8 @@ class Pap(AbstractService):
 
 
 if __name__ == '__main__':
-    f = Filter(arrondissements=[75001], max_price=1000, min_area=25)
+    f = Filter(arrondissements=[75001, 75002, 75003, 75004, 75005, 75010, 75011, 75008, 75009],
+               max_price=1300,
+               min_area=25)
     res = asyncio.get_event_loop().run_until_complete(Pap(f).run())
     logging.info(res)

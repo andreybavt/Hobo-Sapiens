@@ -54,4 +54,5 @@ class AbstractService:
 
     async def main_run(self):
         logging.info(f"Running for {self.get_service_name()}")
+        self.notifications = []
         await self.run()
