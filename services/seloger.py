@@ -60,6 +60,9 @@ class Seloger(AbstractService):
                                               connect_timeout=2, request_timeout=6)
         resp_text = res.body.decode()
         pages = set([e.text for e in BeautifulSoup(resp_text, 'lxml').select('.pagination-number span')])
+        if not len(pages):
+            logging.warn("Page list is empty, exiting")
+            return
         pages_lists = await asyncio.wait(
             [self.get_page_list(p) for p in pages]
         )
