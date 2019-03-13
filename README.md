@@ -11,7 +11,7 @@ pip install -r requirements.txt
 ```
 
 ## Run
-Edit filter.json according to your needs, then:
+Edit `filter.json` according to your criterias, then:
 ```
 AF_TELEGRAM_BOT_TOKEN="XXX" AF_TELEGRAM_CHAT_ID="XXX" python3 runner.py
 ```
