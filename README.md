@@ -1,4 +1,5 @@
-# ApartFacile is a bot that monitores Parisian real estate agencies and send notifications about new flats to Telegram
+# ApartFacile 
+## is a bot that monitores Parisian real estate agencies and send notifications about new flats to Telegram
 
 ## Prerequisite
 - Python 3 (optionally a separate virtual environment)
