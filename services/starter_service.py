@@ -16,7 +16,7 @@ class StarterService(AbstractService):
         # scrapped service name
         return super().get_service_name()
 
-    def get_candidate_native_id(self, candidate):
+    def get_candidate_native_id(self, candidate) -> str:
         # candidate entity id extractor
         return super().get_candidate_native_id(candidate)
 
