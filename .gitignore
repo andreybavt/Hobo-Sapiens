@@ -2,3 +2,4 @@
 proxies*.json
 venv
 .idea/*
+persistent-hash
