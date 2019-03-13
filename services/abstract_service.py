@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Optional, List
 
 from crawler_utils.async_proxy import AsyncProxyClient
 from crawler_utils.utils import PersistentSet
@@ -9,12 +9,12 @@ from runner import Filter
 
 class AbstractService:
 
-    def __init__(self, f: Filter) -> None:
+    def __init__(self, f: Filter, with_proxy=None) -> None:
         super().__init__()
         self.filter = f
-        self.client = AsyncProxyClient(with_proxy=True)
+        self.client = AsyncProxyClient(with_proxy=True if with_proxy is None else with_proxy)
         self.seen_ids = PersistentSet()
-        self.notifications = []
+        self.notifications: List[Notification] = []
 
     def get_service_name(self) -> str:
         raise Exception("Not implemented")

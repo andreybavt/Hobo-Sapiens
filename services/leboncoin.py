@@ -3,13 +3,12 @@ import asyncio
 import json
 import logging
 import re
-from tornado.httpclient import HTTPRequest
-from tornado.httputil import url_concat
-
 from crawler_utils.utils import read_prop
 from notification_sender import Notification
 from runner import Filter
 from services.abstract_service import AbstractService
+from tornado.httpclient import HTTPRequest
+from tornado.httputil import url_concat
 
 
 class LeBonCoin(AbstractService):
@@ -43,12 +42,14 @@ class LeBonCoin(AbstractService):
             'cache-control': "no-cache"
         }
         for page in range(9999):
-            querystring = {"category": "10",
-                           "locations": ','.join([f'Paris_{e}' for e in self.filter.arrondissements]),
-                           "square": f"{self.filter.min_area}-max",
-                           "price": f"min-{self.filter.max_price}",
-                           "page": page
-                           }
+            querystring = {
+                "real_estate_type": "2",
+                "category": "10",
+                "locations": ','.join([f'Paris_{e}' for e in self.filter.arrondissements]),
+                "square": f"{self.filter.min_area}-max",
+                "price": f"min-{self.filter.max_price}",
+                "page": page
+            }
 
             response = await self.client.patient_fetch(
                 HTTPRequest(method='GET', url=url_concat(url, querystring), headers=headers))

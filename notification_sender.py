@@ -18,6 +18,12 @@ class Notification(object):
         self.url = url
         self.pics_urls = pics_urls
 
+    def __hash__(self) -> int:
+        return hash(self.id)
+
+    def __eq__(self, o: object) -> bool:
+        return isinstance(o, Notification) and o.id == self.id
+
 
 class NotificationSender:
 
