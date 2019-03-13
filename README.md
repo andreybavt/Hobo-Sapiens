@@ -54,3 +54,7 @@ Contribution is welcome. It's best to add more proxy retrievers or/and agencies 
   `services.starter_service.StarterService`
 
   and then write an implementations to methods inside of it
+  
+  To plug it in add it to the array `service_classes = [...]` in `runner.py`
+  
+  
