@@ -14,14 +14,14 @@ from services.abstract_service import AbstractService
 
 class Pap(AbstractService):
 
-    def __init__(self, f: Filter) -> None:
-        super().__init__(f)
+    def __init__(self, f: Filter, with_proxy=None) -> None:
+        super().__init__(f, with_proxy=with_proxy)
         arrs = asyncio.get_event_loop().run_until_complete(asyncio.wait([
             self.client.patient_fetch(HTTPRequest(method="GET", url="https://www.pap.fr/json/ac-geo?q=" + str(a))) for a
             in f.arrondissements
         ]))
         arrs_part = 'g'.join([str(json.loads(r.result().body.decode())[0].get('id')) for r in arrs[0]])
-        self.url = f"https://www.pap.fr/annonce/locations{'-meuble' if self.filter.furnished else ''}" \
+        self.url = f"https://www.pap.fr/annonce/location-appartement-maison{'-meuble' if self.filter.furnished else ''}" \
             f"-paris-1er-g{arrs_part}-jusqu-a-{self.filter.max_price}" \
             f"-euros-a-partir-de-{self.filter.min_area}-m2"
 
@@ -54,12 +54,16 @@ class Pap(AbstractService):
         )
 
     async def run(self):
+        should_stop = False
         for page in range(9999):
+            if should_stop:
+                break
             resp = await self.client.patient_fetch(HTTPRequest(method='GET', url=self.url + f'-{page + 1}'))
             soup = BeautifulSoup(resp.body.decode(), 'lxml')
             next_btn = soup.find(attrs={'class': 'pagination'}).find(attrs={'class': 'next'})
-            if not next_btn:
-                break
+            others_delimiter = soup.find(attrs={'class': 'txt-grey-4'})
+            if others_delimiter or not next_btn:
+                should_stop = True
             await asyncio.wait([
                 self.push_candidate(Notification(id=el['name'], url='https://www.pap.fr' + el['href']))
                 for el in soup.find_all(attrs={'class': 'item-title'})
@@ -67,8 +71,9 @@ class Pap(AbstractService):
 
 
 if __name__ == '__main__':
-    f = Filter(arrondissements=[75001, 75002, 75003, 75004, 75005, 75010, 75011, 75008, 75009],
+    f = Filter(arrondissements=[75001, 75002, 75003, 75004],
                max_price=1300,
                min_area=25)
-    res = asyncio.get_event_loop().run_until_complete(Pap(f).run())
+    pap = Pap(f, with_proxy=False)
+    res = asyncio.get_event_loop().run_until_complete(pap.run())
     logging.info(res)

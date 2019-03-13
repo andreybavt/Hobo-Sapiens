@@ -23,8 +23,8 @@ class Seloger(AbstractService):
         'cache-control': "no-cache"
     }
 
-    def __init__(self, filter: Filter) -> None:
-        super().__init__(filter)
+    def __init__(self, filter: Filter, with_proxy=None) -> None:
+        super().__init__(filter, with_proxy=None)
 
         def penalty_fn(e):
             return 5

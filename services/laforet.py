@@ -13,8 +13,8 @@ from services.abstract_service import AbstractService
 
 class Laforet(AbstractService):
 
-    def __init__(self, f: Filter) -> None:
-        super().__init__(f)
+    def __init__(self, f: Filter, with_proxy=None) -> None:
+        super().__init__(f, with_proxy)
 
     def get_service_name(self) -> str:
         return "Laforet"
