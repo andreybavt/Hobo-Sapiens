@@ -6,6 +6,7 @@
 - [Telegram bot](https://core.telegram.org/bots#3-how-do-i-create-a-bot)
 
 ## Installation
+Clone this repository with `--recursive` flag, then
 ```
 pip install -r requirements.txt
 ```
