@@ -1,7 +1,7 @@
 # ApartFacile 
 ## This is a bot that monitores Parisian real estate agencies and send notifications about new flats to Telegram
 
-## Prerequisite
+## Prerequisites
 - Python 3 (optionally a separate virtual environment)
 - [Telegram bot](https://core.telegram.org/bots#3-how-do-i-create-a-bot)
 
@@ -21,6 +21,14 @@ Where the environment variables are:
 `AF_TELEGRAM_BOT_TOKEN` - contains telegram bot token
 
 `AF_TELEGRAM_CHAT_ID` - contains telegram chat id where the notifications will be posted
+
+## Currently supported agencies:
+
+- Bienici
+- Laforet
+- Leboncoin
+- PAP
+- Seloger
 
 ## Contribution
 Contribution is welcome. It's best to add more proxy retrievers or/and agencies websites scrappers.
