@@ -30,6 +30,7 @@ Where the environment variables are:
 - Leboncoin
 - PAP
 - Seloger
+- Figaro Immo
 
 ## Contribution
 Contribution is welcome. It's best to add more proxy retrievers or/and agencies websites scrappers.

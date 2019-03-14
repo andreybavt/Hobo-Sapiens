@@ -29,9 +29,8 @@ class Figaro(AbstractService):
         res = await self.client.patient_fetch(
             HTTPRequest(method="GET", url=url))
         soup = BeautifulSoup(res.body.decode('latin-1'), 'lxml')
-        images = [urllib.parse.unquote(i['src']) for i in
-                  soup.select('#js-container-main > div.container-player div img')]
-        images = [i.split('icc()')[1] for i in images if 'icc()' in i]
+        images = [i['src'] for i in
+                  soup.select('#js-container-main > div.container-player > div div > a > img')]
         return Notification(price=candidate.price,
                             location=candidate.location,
                             area=[i.text for i in soup.select('.list-features li') if 'm²' in i.text][0].strip(),

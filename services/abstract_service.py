@@ -1,10 +1,9 @@
 import logging
-from typing import Optional, List
-
 from crawler_utils.async_proxy import AsyncProxyClient
 from crawler_utils.utils import PersistentSet
 from notification_sender import Notification
 from runner import Filter
+from typing import Optional, List
 
 
 class AbstractService:
@@ -15,6 +14,8 @@ class AbstractService:
         self.client = AsyncProxyClient(with_proxy=True if with_proxy is None else with_proxy)
         self.seen_ids = PersistentSet()
         self.notifications: List[Notification] = []
+        if hasattr(self.client, 'proxy_manager'):
+            self.client.proxy_manager.penalty_fn = lambda e: 5
 
     def get_service_name(self) -> str:
         raise Exception("Not implemented")
