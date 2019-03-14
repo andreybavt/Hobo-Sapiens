@@ -32,5 +32,6 @@ class StarterService(AbstractService):
 
 if __name__ == '__main__':
     f = Filter(arrondissements=[75001, 75002, 75003], max_price=1300, min_area=25)
-    res = asyncio.get_event_loop().run_until_complete(StarterService(f).run())
-    logging.info(res)
+    service = StarterService(f)
+    asyncio.get_event_loop().run_until_complete(service.run())
+    logging.info(service.notifications)

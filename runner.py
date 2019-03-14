@@ -28,13 +28,14 @@ if __name__ == '__main__':
     from services.seloger import Seloger
     from services.laforet import Laforet
     from services.leboncoin import LeBonCoin
+    from services.figaro import Figaro
 
     notification_sender = NotificationSender()
 
     with open('filter.json', 'r') as  f:
         pub_filter = jsonpickle.decode(f.read())
 
-    service_classes = [BienIci, Seloger, Laforet, LeBonCoin, Pap]
+    service_classes = [Figaro, BienIci, Seloger, Laforet, LeBonCoin, Pap]
     services = [s(pub_filter) for s in service_classes]
     loop = asyncio.get_event_loop()
     while True:
