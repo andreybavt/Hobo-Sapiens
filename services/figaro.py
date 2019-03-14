@@ -13,8 +13,6 @@ from runner import Filter
 from services.abstract_service import AbstractService
 
 
-# todo:
-# https://immobilier.lefigaro.fr
 class Figaro(AbstractService):
 
     def __init__(self, f: Filter, with_proxy=None) -> None:
