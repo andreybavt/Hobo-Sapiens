@@ -2,6 +2,7 @@ import asyncio
 import math
 
 import logging
+import re
 from bs4 import BeautifulSoup
 from tornado.httpclient import HTTPRequest
 
@@ -26,6 +27,7 @@ class Century21(AbstractService):
 
         return Notification(
             price=candidate.select('.zone-photo-exclu h3')[0].text.split('/')[0].strip(),
+            area=re.search('(\d|,)*? m²', candidate.select('.detail_vignette')[0].text.strip()).group(0),
             location=candidate.select('.zone-text-loupe .font14')[0].text,
             url=f"https://www.century21.fr{candidate.select('.zone-text-loupe a')[0]['href']}",
             pics_urls=[f"https://www.century21.fr{i['href']}" for i in soup.select('.zone-galerie a[href]')]
@@ -53,7 +55,7 @@ class Century21(AbstractService):
 
 
 if __name__ == '__main__':
-    f = Filter(arrondissements=[75001], max_price=1300,
+    f = Filter(arrondissements=[75002], max_price=1300,
                min_area=25)
     service = Century21(f, False)
     asyncio.get_event_loop().run_until_complete(service.run())
