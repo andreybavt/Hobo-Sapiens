@@ -12,17 +12,13 @@ class StarterService(AbstractService):
     def __init__(self, f: Filter, with_proxy=None) -> None:
         super().__init__(f, with_proxy)
 
-    def get_service_name(self) -> str:
-        # scrapped service name
-        return super().get_service_name()
-
     def get_candidate_native_id(self, candidate) -> str:
         # candidate entity id extractor
         return super().get_candidate_native_id(candidate)
 
-    async def candidate_to_notification(self, candidate) -> Notification:
+    async def candidate_to_notification(self, c) -> Notification:
         # convert raw flat entity to a find_a_flat.notification_sender.Notification
-        return await super().candidate_to_notification(candidate)
+        return await super().candidate_to_notification(c)
 
     async def run(self):
         # Main entry point

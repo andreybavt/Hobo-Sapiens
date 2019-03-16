@@ -2,7 +2,6 @@ import asyncio
 import math
 
 import logging
-import urllib
 from bs4 import BeautifulSoup
 from tornado.httpclient import HTTPRequest
 from urllib.parse import urlencode
@@ -39,10 +38,11 @@ class Figaro(AbstractService):
 
     async def run(self):
         first_page_ids, nb_of_els = await self.fetch_ids_from_page()
-        pages_left = math.ceil(nb_of_els / 35) - 1
-        if pages_left > 0:
+        nb_pages = math.ceil(nb_of_els / 35)
+        if nb_pages > 1:
             other_pages_ids = [i for tup in
-                               (await asyncio.wait([self.fetch_ids_from_page(i + 2) for i in range(pages_left)]))[0] for
+                               (await asyncio.wait([self.fetch_ids_from_page(i) for i in range(2, nb_pages + 1)]))[0]
+                               for
                                i
                                in tup.result()[0]]
         else:

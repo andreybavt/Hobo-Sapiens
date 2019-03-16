@@ -18,7 +18,7 @@ class AbstractService:
             self.client.proxy_manager.penalty_fn = lambda e: 5
 
     def get_service_name(self) -> str:
-        raise Exception("Not implemented")
+        return self.__class__.__name__
 
     def get_candidate_native_id(self, candidate):
         raise Exception("Not implemented")

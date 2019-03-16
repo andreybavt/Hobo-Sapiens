@@ -29,13 +29,14 @@ if __name__ == '__main__':
     from services.laforet import Laforet
     from services.leboncoin import LeBonCoin
     from services.figaro import Figaro
+    from services.avendre_alouer import AvendreAlouer
 
     notification_sender = NotificationSender()
 
     with open('filter.json', 'r') as  f:
         pub_filter = jsonpickle.decode(f.read())
 
-    service_classes = [Figaro, BienIci, Seloger, Laforet, LeBonCoin, Pap]
+    service_classes = [AvendreAlouer, Figaro, BienIci, Seloger, Laforet, LeBonCoin, Pap]
     services = [s(pub_filter) for s in service_classes]
     loop = asyncio.get_event_loop()
     while True:
@@ -43,11 +44,11 @@ if __name__ == '__main__':
         for service in services:
             loop.run_until_complete(service.main_run())
             for (i, n) in enumerate(set(service.notifications)):
-                if not len(n.pics_urls):
+                if not n.pics_urls or not len(n.pics_urls):
                     continue
                 logging.info(
                     f"Sending notification {i + 1} of {len(service.notifications)} for {service.get_service_name()}")
                 notification_sender.send_to_chat(n)
                 time.sleep(1)
                 loop.run_until_complete(service.seen_ids.add(n.id))
-        time.sleep(max(60 * 5 - (time.time() - last_run), 0))
+        time.sleep(max(60 * 3 - (time.time() - last_run), 0))

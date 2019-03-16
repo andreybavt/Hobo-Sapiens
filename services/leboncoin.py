@@ -34,8 +34,9 @@ class LeBonCoin(AbstractService):
 
     async def run(self):
         first_page = await self.fetch()
-        pages_left = math.ceil(first_page['total'] / self.fetch_size) - 1
-        resp_of_pages = [r.result() for r in (await asyncio.wait([self.fetch(i + 2) for i in range(pages_left)]))[0]]
+        nb_pages = math.ceil(first_page['total'] / self.fetch_size)
+        resp_of_pages = [r.result() for r in
+                         (await asyncio.wait([self.fetch(i) for i in range(2, nb_pages + 1)]))[0]]
         for p in (resp_of_pages + [first_page]):
             for i in (read_prop(p, 'ads', fallback=[]) + read_prop(p, 'ads_alu', fallback=[])):
                 await self.push_candidate(i)
@@ -72,4 +73,4 @@ if __name__ == '__main__':
                min_area=25)
     coin = LeBonCoin(f, with_proxy=False)
     res = asyncio.get_event_loop().run_until_complete(coin.run())
-    logging.info(res)
+    logging.info(len(coin.notifications))
