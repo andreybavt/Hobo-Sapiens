@@ -32,6 +32,7 @@ Where the environment variables are:
 - Seloger
 - Figaro Immo
 - AvendreAlouer
+- Century21
 
 ## Contribution
 Contribution is welcome. It's best to add more proxy retrievers or/and agencies websites scrappers.
