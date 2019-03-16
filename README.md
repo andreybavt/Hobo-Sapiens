@@ -31,6 +31,7 @@ Where the environment variables are:
 - PAP
 - Seloger
 - Figaro Immo
+- AvendreAlouer
 
 ## Contribution
 Contribution is welcome. It's best to add more proxy retrievers or/and agencies websites scrappers.
