@@ -50,6 +50,7 @@ class AvendreAlouer(AbstractService):
     async def fetch_page(self, page=1):
         querystring = {"price.lte": self.filter.max_price, "surface.gte": self.filter.min_area,
                        "localityIds": self.locality_ids,
+                       "typeIds": "2,3,6,7,19",
                        "size": self.fetch_size,
                        "from": (page - 1) * self.fetch_size,
                        "releaseDate.gte": (datetime.today() - timedelta(days=3)
