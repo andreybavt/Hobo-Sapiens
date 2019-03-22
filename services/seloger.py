@@ -90,10 +90,13 @@ class Seloger(AbstractService):
                     connect_timeout=4, request_timeout=8)).body.decode()
             img_els = BeautifulSoup(item_page, 'lxml').select('.carrousel_slide')
             if not len(BeautifulSoup(item_page, 'lxml').select('.photo_form')):
-                raise Exception(f'didn\'t find any carrousel_slide: {pub_id}')
-            images = ['http://' + json.loads(e['data-lazy'])['url'].strip('/') for e in
-                      img_els if 'data-lazy' in e.attrs]
-        det['image'] = [f'http://v.seloger.com/s/height/800/visuels{i}' for i in det['imgs']] + images
+                logging.warning(f'didn\'t find any carrousel_slide: {pub_id}')
+                images = []
+            else:
+                images = ['http://' + json.loads(e['data-lazy'])['url'].strip('/') for e in
+                          img_els if 'data-lazy' in e.attrs]
+                det['image'] = [f'http://v.seloger.com/s/height/800/visuels{i}' for i in det['imgs']] + images
+                break
         return det
 
     @staticmethod

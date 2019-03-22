@@ -1,9 +1,10 @@
 import logging
+from typing import Optional, List
+
 from crawler_utils.async_proxy import AsyncProxyClient
 from crawler_utils.utils import PersistentSet
 from notification_sender import Notification
 from runner import Filter
-from typing import Optional, List
 
 
 class AbstractService:
@@ -12,6 +13,10 @@ class AbstractService:
         super().__init__()
         self.filter = f
         self.client = AsyncProxyClient(with_proxy=True if with_proxy is None else with_proxy)
+        self.client.fetch_opts = {
+            "connect_timeout": 20,
+            "request_timeout": 40
+        }
         self.seen_ids = PersistentSet()
         self.notifications: List[Notification] = []
         if hasattr(self.client, 'proxy_manager'):

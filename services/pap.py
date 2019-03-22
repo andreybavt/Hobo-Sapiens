@@ -74,6 +74,6 @@ if __name__ == '__main__':
     f = Filter(arrondissements=[75001, 75002, 75003, 75004],
                max_price=1300,
                min_area=25)
-    pap = Pap(f, with_proxy=False)
+    pap = Pap(f)
     res = asyncio.get_event_loop().run_until_complete(pap.run())
     logging.info(res)
