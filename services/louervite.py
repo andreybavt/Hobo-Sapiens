@@ -30,6 +30,8 @@ class LouerVite(AbstractService):
 
     async def run(self):
         first_data, total_els = await self.get_results_from_page()
+        if not len(first_data):
+            return
         for e in first_data:
             await self.push_candidate(e)
         total_pages = math.ceil(total_els / self.page_size)
