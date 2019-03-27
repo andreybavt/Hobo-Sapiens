@@ -14,7 +14,7 @@ class AbstractService:
         self.filter = f
         self.client = AsyncProxyClient(with_proxy=True if with_proxy is None else with_proxy)
         self.client.fetch_opts = {
-            "connect_timeout": 20,
+            "connect_timeout": 8,
             "request_timeout": 40
         }
         self.seen_ids = PersistentSet()

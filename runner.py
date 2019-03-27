@@ -4,6 +4,7 @@ import time
 import jsonpickle
 import logging
 import os
+import traceback
 
 
 class Filter:
@@ -44,13 +45,16 @@ if __name__ == '__main__':
     while True:
         last_run = time.time()
         for service in services:
-            loop.run_until_complete(service.main_run())
+            try:
+                loop.run_until_complete(service.main_run())
+            except Exception as e:
+                logging.error(e, traceback.format_exc())
             for (i, n) in enumerate(set(service.notifications)):
                 if not n.pics_urls or not len(n.pics_urls):
                     continue
                 logging.info(
                     f"Sending notification {i + 1} of {len(service.notifications)} for {service.get_service_name()}")
                 notification_sender.send_to_chat(n)
-                time.sleep(1)
+                time.sleep(0.5)
                 loop.run_until_complete(service.seen_ids.add(n.id))
         time.sleep(max(60 * 3 - (time.time() - last_run), 0))
