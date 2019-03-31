@@ -31,7 +31,7 @@ class LogicImmo(AbstractService):
         c.location = re.search(r'\((.*?)\)', soup.select_one('[itemprop="address"]').text).group(1)
         c.price = only_digits(soup.select_one('.main-price').text)
         c.area = soup.select_one('.offer-area-number').text
-        c.pics_urls = {e.get('src') for e in soup.select('#gallery  a > img')}
+        c.pics_urls = list({e.get('src') for e in soup.select('#gallery  a > img')})
         return c
 
     async def run(self):
