@@ -30,7 +30,8 @@ class LouerVite(AbstractService):
 
     async def run(self):
         first_data, total_els = await self.get_results_from_page()
-        if not len(first_data):
+        if not first_data or not len(first_data):
+            logging.warning("LouerVite: got empty first_data")
             return
         for e in first_data:
             await self.push_candidate(e)
