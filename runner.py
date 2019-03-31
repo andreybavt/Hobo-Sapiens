@@ -6,7 +6,6 @@ import logging
 import os
 import traceback
 
-from services.meilleursagents import MeilleursAgents
 
 
 class Filter:
@@ -35,6 +34,7 @@ if __name__ == '__main__':
     from services.avendre_alouer import AvendreAlouer
     from services.century21 import Century21
     from services.louervite import LouerVite
+    from services.meilleursagents import MeilleursAgents
 
     notification_sender = NotificationSender()
 
