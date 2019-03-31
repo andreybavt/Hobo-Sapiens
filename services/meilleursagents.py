@@ -2,7 +2,6 @@ import asyncio
 
 import json
 import logging
-import re
 from bs4 import BeautifulSoup
 from tornado.httpclient import HTTPRequest
 from urllib.parse import urlencode
@@ -11,6 +10,7 @@ from crawler_utils.utils import read_prop
 from notification_sender import Notification
 from runner import Filter
 from services.abstract_service import AbstractService
+from services.service_utils import only_digits
 
 
 class ChunkReader:
@@ -43,10 +43,6 @@ class MeilleursAgents(AbstractService):
         c.pics_urls = [f"http:{i['href']}" for i in html.select('.listing-slideshow__link')]
         return c
 
-    @staticmethod
-    def only_digits(s):
-        return int(''.join(re.findall('\d', s)))
-
     async def run(self):
         total_pages = await self.run_for_page()
         for i in range(2, total_pages + 1):
@@ -76,10 +72,10 @@ class MeilleursAgents(AbstractService):
             logging.info(f"running for {href}")
             await self.push_candidate(Notification(
                 id=e.select_one('.listing-actions__item')['data-listing-id'],
-                price=self.only_digits(e.select_one('.listing-price').text.strip()),
+                price=only_digits(e.select_one('.listing-price').text.strip()),
                 url=href,
                 location=self.arr_to_zip[e.select_one('[data-search-listing-item-place]').text],
-                area=self.only_digits(e.select_one('.listing-caracteristic').text.strip().split('-')[-1])
+                area=only_digits(e.select_one('.listing-caracteristic').text.strip().split('-')[-1])
             ))
 
         await asyncio.wait([push_candidate_el(e) for e in soup.select('.listing-item.search-listing-result__item')])

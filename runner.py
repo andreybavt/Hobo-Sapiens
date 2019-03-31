@@ -7,7 +7,6 @@ import os
 import traceback
 
 
-
 class Filter:
     def __init__(self, arrondissements, max_price, min_area, furnished=None) -> None:
         super().__init__()
@@ -35,13 +34,15 @@ if __name__ == '__main__':
     from services.century21 import Century21
     from services.louervite import LouerVite
     from services.meilleursagents import MeilleursAgents
+    from services.logicimmo import LogicImmo
 
     notification_sender = NotificationSender()
 
     with open('filter.json', 'r') as  f:
         pub_filter = jsonpickle.decode(f.read())
 
-    service_classes = [MeilleursAgents, LouerVite, Century21, AvendreAlouer, Figaro, BienIci, Seloger, Laforet,
+    service_classes = [LogicImmo, MeilleursAgents, LouerVite, Century21, AvendreAlouer, Figaro, BienIci, Seloger,
+                       Laforet,
                        LeBonCoin, Pap]
     services = [s(pub_filter) for s in service_classes]
     loop = asyncio.get_event_loop()
