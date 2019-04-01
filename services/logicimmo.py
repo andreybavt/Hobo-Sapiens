@@ -31,7 +31,7 @@ class LogicImmo(AbstractService):
         c.location = re.search(r'\((.*?)\)', soup.select_one('[itemprop="address"]').text).group(1)
         c.price = only_digits(soup.select_one('.main-price').text)
         c.area = soup.select_one('.offer-area-number').text
-        c.pics_urls = list({e.get('src') for e in soup.select('#gallery  a > img')})
+        c.pics_urls = list({e.get('src').replace('75x75','800x600') for e in soup.select('#gallery  a > img')})
         return c
 
     async def run(self):
@@ -40,10 +40,14 @@ class LogicImmo(AbstractService):
             await self.do_for_page(p)
 
     async def do_for_page(self, page=1):
-        arr_url_part = ','.join([self.arrs[str(a)].get('lct_name').replace(' ', '-').lower() + "-" + str(a) for a in
-                                 self.filter.arrondissements])
+        arr_url_part_1 = ','.join([self.arrs[str(a)].get('lct_name').replace(' ', '-').lower() + "-" + str(a) for a in
+                                   self.filter.arrondissements])
+        arr_url_part_2 = ','.join([self.arrs[str(a)].get('lct_id') + "_2" for a in
+                                   self.filter.arrondissements])
+
         furnished_url_part = "/searchoptions=4" if self.filter.furnished else ""
-        url = f"https://www.logic-immo.com/location-immobilier-{arr_url_part},23599_2,23604_2,23602_2/options/groupprptypesids=1,2,6,7,12/page={page}{furnished_url_part}/pricemax={self.filter.max_price}/areamin={self.filter.min_area}"
+        # url = f"https://www.logic-immo.com/location-immobilier-{arr_url_part_1},{arr_url_part_2}/options/groupprptypesids=1,2,6,7,12/page={page}{furnished_url_part}/pricemax={self.filter.max_price}/areamin={self.filter.min_area}"
+        url = f"https://www.logic-immo.com/location-immobilier/options/grouplocalities={arr_url_part_2}/groupprptypesids=1,2,6,7,12{furnished_url_part}/pricemax={self.filter.max_price}/areamin={self.filter.min_area}"
         rest = await self.client.patient_fetch(HTTPRequest(url=url))
         soup = BeautifulSoup(rest.body.decode(), 'lxml')
         paginator_els = soup.select('.offer-pagination-wrapper div.numbers a')

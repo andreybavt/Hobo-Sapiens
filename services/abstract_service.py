@@ -11,6 +11,7 @@ class AbstractService:
 
     def __init__(self, f: Filter, with_proxy=None) -> None:
         super().__init__()
+        logging.info(f"INITIALIZING {self.__class__.__name__}")
         self.filter = f
         self.client = AsyncProxyClient(with_proxy=True if with_proxy is None else with_proxy)
         self.client.fetch_opts = {

@@ -7,6 +7,7 @@ from PIL import Image
 from tornado.httpclient import HTTPRequest
 
 from crawler_utils.async_proxy import AsyncProxyClient
+from crawler_utils.utils import nofail_async
 
 
 class ImageManager:
@@ -15,8 +16,9 @@ class ImageManager:
         self.image_hashes = shelve.open('image_hashes')
         self.client = AsyncProxyClient()
 
+    @nofail_async(retries=5, failback_result=(None, None))
     async def get_image_hash(self, image_url):
-        res = await self.client.patient_fetch(HTTPRequest(method='GET', url=image_url), use_proxy=False)
+        res = await self.client.fetch(HTTPRequest(method='GET', url=image_url), use_proxy=False)
         image = Image.open(io.BytesIO(res.body))
         return image_url, imagehash.average_hash(image)
 
@@ -26,7 +28,7 @@ class ImageManager:
         res = asyncio.get_event_loop().run_until_complete(asyncio.wait([
             self.get_image_hash(i) for i in urls
         ]))
-        for url, hash in [r.result() for r in res[0]]:
+        for url, hash in [r.result() for r in res[0] if res[0]]:
             hash_str = str(hash)
             if hash_str not in self.image_hashes:
                 self.image_hashes[hash_str] = {"hash": hash_str, "notif": notification}

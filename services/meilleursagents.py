@@ -69,7 +69,6 @@ class MeilleursAgents(AbstractService):
 
         async def push_candidate_el(e):
             href = e.select_one('a')['href']
-            logging.info(f"running for {href}")
             await self.push_candidate(Notification(
                 id=e.select_one('.listing-actions__item')['data-listing-id'],
                 price=only_digits(e.select_one('.listing-price').text.strip()),
