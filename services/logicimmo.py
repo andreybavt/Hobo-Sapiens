@@ -14,8 +14,8 @@ from services.service_utils import only_digits
 
 class LogicImmo(AbstractService):
 
-    def __init__(self, f: Filter, with_proxy=None) -> None:
-        super().__init__(f, with_proxy)
+    def __init__(self, f: Filter, enable_proxy=None) -> None:
+        super().__init__(f, enable_proxy)
         res = asyncio.get_event_loop().run_until_complete(self.client.patient_fetch(
             HTTPRequest(url="https://www.logic-immo.com/asset/t9/getLocalityT9.php?site=fr&lang=fr&json=%22750%22")))
         arr_data = [i for i in json.loads(res.body.decode()) if i['name'] == 'Ville(s)'][0]['children']

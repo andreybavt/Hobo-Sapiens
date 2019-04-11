@@ -14,8 +14,8 @@ from services.abstract_service import AbstractService
 
 class Century21(AbstractService):
 
-    def __init__(self, f: Filter, with_proxy=None) -> None:
-        super().__init__(f, with_proxy)
+    def __init__(self, f: Filter, enable_proxy=None) -> None:
+        super().__init__(f, enable_proxy)
 
     def get_candidate_native_id(self, candidate) -> str:
         return candidate['data-uid']

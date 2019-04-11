@@ -23,8 +23,8 @@ class Seloger(AbstractService):
         'cache-control': "no-cache"
     }
 
-    def __init__(self, filter: Filter, with_proxy=None) -> None:
-        super().__init__(filter, with_proxy=None)
+    def __init__(self, filter: Filter, enable_proxy=None) -> None:
+        super().__init__(filter, enable_proxy=None)
 
         def penalty_fn(e):
             return 5
@@ -57,7 +57,7 @@ class Seloger(AbstractService):
 
     async def run(self):
         res = await self.client.patient_fetch(HTTPRequest(method='GET', url=self.list_url, headers=self.headers),
-                                              connect_timeout=2, request_timeout=6)
+                                              connect_timeout=4, request_timeout=8)
         resp_text = res.body.decode()
         pages = set([e.text for e in BeautifulSoup(resp_text, 'lxml').select('.pagination-number span')])
         if not len(pages):
@@ -107,7 +107,7 @@ class Seloger(AbstractService):
     @nofail_async(retries=10)
     async def get_page_list(self, p):
         res = await self.client.patient_fetch(HTTPRequest(method='GET', url=self.list_url + p, headers=self.headers),
-                                              connect_timeout=2, request_timeout=6)
+                                              connect_timeout=4, request_timeout=8)
         resp_text = res.body.decode()
         script = [e for e in BeautifulSoup(resp_text, 'lxml').select('script') if '"products" : [' in e.text][
             0].text

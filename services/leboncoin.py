@@ -13,8 +13,8 @@ from services.abstract_service import AbstractService
 
 class LeBonCoin(AbstractService):
 
-    def __init__(self, f: Filter, with_proxy=None) -> None:
-        super().__init__(f, with_proxy)
+    def __init__(self, f: Filter, enable_proxy=None) -> None:
+        super().__init__(f, enable_proxy)
         self.fetch_size = 35
 
     def get_service_name(self) -> str:
@@ -71,6 +71,6 @@ class LeBonCoin(AbstractService):
 if __name__ == '__main__':
     f = Filter(arrondissements=[75001, 75002, 75003, 75004, 75005, 75010, 75011, 75008, 75009], max_price=1300,
                min_area=25)
-    coin = LeBonCoin(f, with_proxy=False)
+    coin = LeBonCoin(f, enable_proxy=False)
     res = asyncio.get_event_loop().run_until_complete(coin.run())
     logging.info(len(coin.notifications))

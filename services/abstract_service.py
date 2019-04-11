@@ -9,11 +9,11 @@ from runner import Filter
 
 class AbstractService:
 
-    def __init__(self, f: Filter, with_proxy=None) -> None:
+    def __init__(self, f: Filter, enable_proxy=None) -> None:
         super().__init__()
         logging.info(f"INITIALIZING {self.__class__.__name__}")
         self.filter = f
-        self.client = AsyncProxyClient(with_proxy=True if with_proxy is None else with_proxy)
+        self.client = AsyncProxyClient(enable_proxy=True if enable_proxy is None else enable_proxy)
         self.client.fetch_opts = {
             "connect_timeout": 8,
             "request_timeout": 40
@@ -21,7 +21,7 @@ class AbstractService:
         self.seen_ids = PersistentSet()
         self.notifications: List[Notification] = []
         if hasattr(self.client, 'proxy_manager'):
-            self.client.proxy_manager.penalty_fn = lambda e: 5
+            self.client.proxy_manager.penalty_fn = lambda e: 2
 
     def get_service_name(self) -> str:
         return self.__class__.__name__

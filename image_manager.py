@@ -18,7 +18,7 @@ class ImageManager:
 
     @nofail_async(retries=5, failback_result=(None, None))
     async def get_image_hash(self, image_url):
-        res = await self.client.fetch(HTTPRequest(method='GET', url=image_url), use_proxy=False)
+        res = await self.client.fetch(HTTPRequest(method='GET', url=image_url), use_proxy_for_request=False)
         image = Image.open(io.BytesIO(res.body))
         return image_url, imagehash.average_hash(image)
 

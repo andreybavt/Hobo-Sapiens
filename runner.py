@@ -59,6 +59,6 @@ if __name__ == '__main__':
                 logging.info(
                     f"Sending notification {i + 1} of {len(service.notifications)} for {service.get_service_name()}")
                 notification_sender.send_to_chat(n)
-                time.sleep(0.5)
                 loop.run_until_complete(service.seen_ids.add(n.id))
+                time.sleep(0.5)
         time.sleep(max(60 * 3 - (time.time() - last_run), 0))

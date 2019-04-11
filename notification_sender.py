@@ -1,3 +1,4 @@
+import json
 import logging
 import traceback
 from os import environ
@@ -44,23 +45,31 @@ class NotificationSender:
             reference_message = None
             if not notif.pics_urls:
                 return
-            for c in chunks(notif.pics_urls, 10):
-                new_images, seen_in_messages = self.image_manager.check_all(notif, c)
-                seen_in = None if not len(seen_in_messages) else seen_in_messages.pop()
-                reference_message = None if not seen_in else seen_in['message_id']
-                if reference_message:
-                    logging.info(f"Found photo duplicates: \n               {notif.url} vs. {seen_in['notif'].url}")
-                if len(new_images):
-                    send_pic_res = self._send_pics(new_images.keys(), chat_id, desc,
-                                                   reply_to_message_id=reference_message)
-                    self.image_manager.set_message_ids([v['hash'] for v in new_images.values()],
-                                                       send_pic_res[0]['message_id'])
+            try:
+                for c in chunks(notif.pics_urls, 10):
+                    new_images, seen_in_messages = self.image_manager.check_all(notif, c)
+                    seen_in = None if not len(seen_in_messages) else seen_in_messages.pop()
+                    reference_message = None if not seen_in else seen_in['message_id']
+                    if reference_message:
+                        logging.info(f"Found photo duplicates: \n               {notif.url} vs. {seen_in['notif'].url}")
+                    if len(new_images):
+                        logging.info(f"Sending {len(new_images)} images")
+                        send_pic_res = self._send_pics(new_images.keys(), chat_id, desc,
+                                                       reply_to_message_id=reference_message)
+                        if hasattr(send_pic_res[0], 'message_id'):
+                            self.image_manager.set_message_ids([v['hash'] for v in new_images.values()],
+                                                               send_pic_res[0].message_id)
+            except Exception as e:
+                logging.error(e)
+
             self._send_message(chat_id, desc, reference_message=reference_message)
         except Exception as e:
             logging.error(e, traceback.format_exc())
 
     @nofail(retries=20)
     def _send_message(self, chat_id, desc, reference_message=None):
+        logging.info(f"Sending message: {chat_id} {desc} {reference_message} ")
+
         self.updater.bot.send_message(chat_id, desc, timeout=20 * 60, disable_web_page_preview=True,
                                       reply_to_message_id=reference_message,
                                       disable_notification=reference_message is not None)

@@ -14,9 +14,9 @@ from services.abstract_service import AbstractService
 
 class LouerVite(AbstractService):
 
-    def __init__(self, f: Filter, with_proxy=None) -> None:
+    def __init__(self, f: Filter, enable_proxy=None) -> None:
         self.page_size = 100
-        super().__init__(f, with_proxy)
+        super().__init__(f, enable_proxy)
 
     def get_candidate_native_id(self, c) -> str:
         return c['IdAnnonce']

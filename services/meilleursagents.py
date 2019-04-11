@@ -25,8 +25,8 @@ class ChunkReader:
 
 class MeilleursAgents(AbstractService):
 
-    def __init__(self, f: Filter, with_proxy=None) -> None:
-        super().__init__(f, with_proxy)
+    def __init__(self, f: Filter, enable_proxy=None) -> None:
+        super().__init__(f, enable_proxy)
         geo = asyncio.get_event_loop().run_until_complete(self.client.patient_fetch(
             HTTPRequest(url="https://geo.meilleursagents.com/geo/v1/?q=750&types=subregions,cities,arrmuns")))
         self.zip_map = {i['zip']: i for i in read_prop(json.loads(geo.body.decode()), 'response', 'places')}
