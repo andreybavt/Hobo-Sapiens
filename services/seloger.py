@@ -57,7 +57,7 @@ class Seloger(AbstractService):
 
     async def run(self):
         res = await self.client.patient_fetch(HTTPRequest(method='GET', url=self.list_url, headers=self.headers),
-                                              connect_timeout=4, request_timeout=8)
+                                              connect_timeout=10, request_timeout=16)
         resp_text = res.body.decode()
         pages = set([e.text for e in BeautifulSoup(resp_text, 'lxml').select('.pagination-number span')])
         if not len(pages):
@@ -70,7 +70,7 @@ class Seloger(AbstractService):
         unseen = await self.filter_out_seen(candidates)
         unseen = [u for u in unseen if self.get_candidate_native_id(u)]
         logging.info(f'found {len(candidates)} items, {len(unseen)} unseen')
-        for chunk in chunks(unseen, 10):
+        for chunk in chunks(unseen, 3):
             await asyncio.wait(
                 [self.push_candidate(c) for c in chunk]
             )
@@ -78,7 +78,7 @@ class Seloger(AbstractService):
     @nofail_async(retries=50, failback_result={})
     async def fetch_by_id(self, pub_id):
         det_resp = await self.client.patient_fetch(
-            HTTPRequest(method='GET', url=self.announce_url + str(pub_id)), connect_timeout=4, request_timeout=8)
+            HTTPRequest(method='GET', url=self.announce_url + str(pub_id)), connect_timeout=10, request_timeout=16)
         det = json.loads(det_resp.body.decode())
         retries = 10
         images = []
@@ -87,7 +87,7 @@ class Seloger(AbstractService):
             item_page = (
                 await self.client.patient_fetch(
                     HTTPRequest(method='GET', url=self.get_url(det), headers=self.headers),
-                    connect_timeout=4, request_timeout=8)).body.decode()
+                    connect_timeout=10, request_timeout=16)).body.decode()
             img_els = BeautifulSoup(item_page, 'lxml').select('.carrousel_slide')
             if not len(BeautifulSoup(item_page, 'lxml').select('.photo_form')):
                 logging.warning(f'didn\'t find any carrousel_slide: {pub_id}')
@@ -107,7 +107,7 @@ class Seloger(AbstractService):
     @nofail_async(retries=10)
     async def get_page_list(self, p):
         res = await self.client.patient_fetch(HTTPRequest(method='GET', url=self.list_url + p, headers=self.headers),
-                                              connect_timeout=4, request_timeout=8)
+                                              connect_timeout=10, request_timeout=16)
         resp_text = res.body.decode()
         script = [e for e in BeautifulSoup(resp_text, 'lxml').select('script') if '"products" : [' in e.text][
             0].text

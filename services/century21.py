@@ -26,7 +26,7 @@ class Century21(AbstractService):
         soup = BeautifulSoup(resp.body.decode(), 'lxml')
 
         return Notification(
-            price=candidate.select('.zone-photo-exclu h3')[0].text.split('/')[0].strip(),
+            price=soup.select_one('.tarif b').text.strip(),
             area=re.search('(\d|,)*? m²', candidate.select('.detail_vignette')[0].text.strip()).group(0),
             location=candidate.select('.zone-text-loupe .font14')[0].text,
             url=f"https://www.century21.fr{candidate.select('.zone-text-loupe a')[0]['href']}",
@@ -35,7 +35,7 @@ class Century21(AbstractService):
 
     async def run(self):
         candidates, first_page = await self.get_page()
-        nb_els = int(first_page.select('#bloc_liste_biens .titreSeparation .font18.bold')[0].text)
+        nb_els = int(re.findall('\d+',first_page.select_one('#bloc_liste_biens .titreSeparation').text)[0])
         page_cnt = math.ceil(nb_els / 30)
         if page_cnt > 1:
             kk = [z for i in range(2, page_cnt + 1) for z in (await self.get_page(i))[0]]
