@@ -62,7 +62,8 @@ class NotificationSender:
             except Exception as e:
                 logging.error(e)
 
-            self._send_message(chat_id, desc, reference_message=reference_message)
+            if len(new_images):
+                self._send_message(chat_id, desc, reference_message=reference_message)
         except Exception as e:
             logging.error(e, traceback.format_exc())
 
