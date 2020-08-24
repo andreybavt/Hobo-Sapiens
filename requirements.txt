@@ -22,6 +22,6 @@ selenium==3.141.0
 six==1.12.0
 soupsieve==1.8
 tornado==6.0.1
-typed-ast==1.3.1
+typed-ast==1.3.2
 urllib3==1.24.1
 wrapt==1.11.1
