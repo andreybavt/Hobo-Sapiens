@@ -10,8 +10,8 @@ from services.abstract_service import AbstractService
 
 class BienIci(AbstractService):
 
-    def __init__(self, f: Filter, enable_proxy=None) -> None:
-        super().__init__(f, enable_proxy)
+    def __init__(self, f: Filter, *args, **kwargs) -> None:
+        super().__init__(f, *args, **kwargs)
         self.url = 'https://www.bienici.com/realEstateAds.json'
 
         arr_responses = asyncio.get_event_loop().run_until_complete(

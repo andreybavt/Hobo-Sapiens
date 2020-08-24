@@ -1,23 +1,24 @@
 import logging
 import os
 import sys
+from pathlib import Path
+
+import diskcache as dc
 
 logging.basicConfig(stream=sys.stdout, level=os.environ.get('LOGLEVEL', 'INFO').upper(),
                     format='%(asctime)s %(levelname)s %(name)s: %(message)s')
 
-from typing import Optional, List, Dict, Set
+from typing import Optional, Set
 
 from crawler_utils.async_proxy import AsyncProxyClient
-from crawler_utils.utils import PersistentSet
 from notification_sender import Notification
 from runner import Filter
 
 
-
 class AbstractService:
 
-    def __init__(self, f: Filter, enable_proxy=None) -> None:
-        super().__init__()
+    def __init__(self, f: Filter, enable_proxy=None,
+                 storage_path=Path.home().joinpath('.hobo-sapiens', 'listings')) -> None:
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info("INITIALIZING")
         self.filter = f
@@ -27,7 +28,7 @@ class AbstractService:
             "connect_timeout": 8,
             "request_timeout": 40
         }
-        self.seen_ids = PersistentSet()
+        self.seen_ids = dc.Cache(str(storage_path))
         self.notifications: Set[Notification] = set()
         if hasattr(self.client, 'proxy_manager'):
             self.client.proxy_manager.penalty_fn = lambda e: 2
@@ -53,8 +54,7 @@ class AbstractService:
 
     async def push_candidate(self, candidate):
         prefixed_id = self.get_service_prefixed_id(candidate)
-        is_seen = await self.seen_ids.has(prefixed_id)
-        if is_seen:
+        if prefixed_id in self.seen_ids:
             return False
         notification = await self._candidate_to_notification(candidate)
         if notification:
@@ -71,7 +71,7 @@ class AbstractService:
         return notification
 
     async def filter_out_seen(self, candidates):
-        return [e for e in candidates if not await self.seen_ids.has(self.get_service_prefixed_id(e))]
+        return [e for e in candidates if self.get_service_prefixed_id(e) not in self.seen_ids]
 
     async def main_run(self):
         self.logger.info(f"Running")

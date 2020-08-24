@@ -1,7 +1,5 @@
 import asyncio
 
-import logging
-
 from notification_sender import Notification
 from runner import Filter
 from services.abstract_service import AbstractService
@@ -9,8 +7,8 @@ from services.abstract_service import AbstractService
 
 class StarterService(AbstractService):
 
-    def __init__(self, f: Filter, enable_proxy=None) -> None:
-        super().__init__(f, enable_proxy)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, *kwargs)
 
     def get_candidate_native_id(self, candidate) -> str:
         # candidate entity id extractor

@@ -17,8 +17,8 @@ class Figaro(AbstractService):
         'Connection': 'Keep-Alive'
     }
 
-    def __init__(self, f: Filter, enable_proxy=None) -> None:
-        super().__init__(f, enable_proxy)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.locations = self.search_locations()
 
     def get_service_name(self) -> str:

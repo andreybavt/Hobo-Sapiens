@@ -18,8 +18,8 @@ class Orpi(AbstractService):
         'Authorization': 'AwesomeApiKeyForMobileApp85323664'
     }
 
-    def __init__(self, f: Filter, enable_proxy=None) -> None:
-        super().__init__(f, enable_proxy)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.locations = asyncio.get_event_loop().run_until_complete(self.search_locations())
 
     def get_candidate_native_id(self, candidate) -> str:

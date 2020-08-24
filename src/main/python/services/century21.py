@@ -1,8 +1,7 @@
 import asyncio
 import math
-
-import logging
 import re
+
 from bs4 import BeautifulSoup
 from tornado.httpclient import HTTPRequest
 
@@ -13,9 +12,6 @@ from services.abstract_service import AbstractService
 
 
 class Century21(AbstractService):
-
-    def __init__(self, f: Filter, enable_proxy=None) -> None:
-        super().__init__(f, enable_proxy)
 
     def get_candidate_native_id(self, candidate) -> str:
         return candidate['data-uid']

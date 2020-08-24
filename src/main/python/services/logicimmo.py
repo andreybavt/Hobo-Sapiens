@@ -17,8 +17,8 @@ class LogicImmo(AbstractService):
         'Accept-Encoding': 'gzip'
     }
 
-    def __init__(self, f: Filter, enable_proxy=None) -> None:
-        super().__init__(f, enable_proxy)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.locality_codes = asyncio.get_event_loop().run_until_complete(self.search_localities())
 
     def get_candidate_native_id(self, candidate) -> str:

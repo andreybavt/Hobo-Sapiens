@@ -1,8 +1,9 @@
 import asyncio
-
-import imagehash
 import io
-import shelve
+from pathlib import Path
+
+import diskcache as dc
+import imagehash
 from PIL import Image
 from tornado.httpclient import HTTPRequest
 
@@ -11,9 +12,10 @@ from crawler_utils.utils import nofail_async
 
 
 class ImageManager:
-    def __init__(self) -> None:
+    def __init__(self, storage_path=Path.home().joinpath('.hobo-sapiens', 'image-hashes')) -> None:
         super().__init__()
-        self.image_hashes = shelve.open('data/image_hashes')
+        self.image_hashes = dc.Cache(str(storage_path))
+
         self.client = AsyncProxyClient()
 
     @nofail_async(retries=5, failback_result=(None, None))

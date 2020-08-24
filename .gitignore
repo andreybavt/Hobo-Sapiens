@@ -3,6 +3,4 @@ proxies.json
 venv
 env
 .idea/*
-persistent-hash
-/data/
 target

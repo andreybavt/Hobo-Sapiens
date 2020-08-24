@@ -15,8 +15,8 @@ from services.abstract_service import AbstractService
 
 class AvendreAlouer(AbstractService):
 
-    def __init__(self, f: Filter, enable_proxy=None) -> None:
-        super().__init__(f, enable_proxy)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.fetch_size = 100
 
         location_url = "https://ws-web.avendrealouer.fr/ref/localities/_autocomplete?term="

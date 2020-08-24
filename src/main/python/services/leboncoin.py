@@ -12,8 +12,8 @@ from services.abstract_service import AbstractService
 
 class LeBonCoin(AbstractService):
 
-    def __init__(self, f: Filter, enable_proxy=None) -> None:
-        super().__init__(f, enable_proxy)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.fetch_size = 35
 
     def get_service_name(self) -> str:

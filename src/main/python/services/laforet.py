@@ -15,9 +15,6 @@ ANNOUNCES_PER_PAGE = 16
 
 class Laforet(AbstractService):
 
-    def __init__(self, f: Filter, enable_proxy=None) -> None:
-        super().__init__(f, enable_proxy)
-
     def get_service_name(self) -> str:
         return "Laforet"
 

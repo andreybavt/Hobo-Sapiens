@@ -1,8 +1,9 @@
 import asyncio
-
-import pytest
+import tempfile
+from pathlib import Path
 
 from runner import Filter
+from services.abstract_service import AbstractService
 from services.avendre_alouer import AvendreAlouer
 from services.bienici import BienIci
 from services.century21 import Century21
@@ -15,58 +16,53 @@ from services.pap import Pap
 from services.seloger import Seloger
 
 
-@pytest.fixture
-def filter_stub():
-    return Filter(arrondissements=[75018], max_price=1500, min_area=27)
+def test_logicimmo():
+    smoke_test(LogicImmo)
 
 
-def test_logicimmo(filter_stub):
-    smoke_test(LogicImmo(filter_stub, False))
+def test_century21():
+    smoke_test(Century21)
 
 
-def test_century21(filter_stub):
-    smoke_test(Century21(filter_stub, False))
+def test_avendre_alouer():
+    smoke_test(AvendreAlouer)
 
 
-def test_avendre_alouer(filter_stub):
-    smoke_test(AvendreAlouer(filter_stub, False))
+def test_bienici():
+    smoke_test(BienIci)
 
 
-def test_bienici(filter_stub):
-    smoke_test(BienIci(filter_stub, False))
+def test_figaro():
+    smoke_test(Figaro)
 
 
-def test_figaro(filter_stub):
-    smoke_test(Figaro(filter_stub, False))
+def test_leboncoin():
+    smoke_test(LeBonCoin)
 
 
-def test_leboncoin(filter_stub):
-    smoke_test(LeBonCoin(filter_stub, False))
+def test_pap():
+    smoke_test(Pap)
 
 
-# HARD - maybe also Seloger?
-# def test_meilleursagents(filter_stub):
-#     from services.meilleursagents import MeilleursAgents
-#     smoke_test(MeilleursAgents(filter_stub, False))
+def test_orpi():
+    smoke_test(Orpi)
 
 
-def test_pap(filter_stub):
-    smoke_test(Pap(filter_stub, False))
+def test_seloger():
+    smoke_test(Seloger)
 
 
-def test_orpi(filter_stub):
-    smoke_test(Orpi(filter_stub, False))
+def test_laforet():
+    smoke_test(Laforet)
 
 
-def test_seloger(filter_stub):
-    smoke_test(Seloger(filter_stub, False))
+from typing import Type
 
 
-def test_laforet(filter_stub):
-    smoke_test(Laforet(filter_stub, False))
+def smoke_test(service_class: Type[AbstractService]):
+    filter = Filter(arrondissements=[75018], max_price=1500, min_area=27)
+    service = service_class(filter, False, Path(tempfile.mkdtemp(prefix='hobo-sapiens-listings')))
 
-
-def smoke_test(service):
     asyncio.get_event_loop().run_until_complete(service.main_run())
     assert len(service.notifications) > 0
     has_area = False
