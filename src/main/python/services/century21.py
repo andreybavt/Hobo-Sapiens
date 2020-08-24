@@ -27,9 +27,9 @@ class Century21(AbstractService):
 
         return Notification(
             price=soup.select_one('.tarif b').text.strip(),
-            area=re.search('(\d|,)*? m²', candidate.select('.detail_vignette')[0].text.strip()).group(0),
-            location=candidate.select('.zone-text-loupe .font14')[0].text,
-            url=f"https://www.century21.fr{candidate.select('.zone-text-loupe a')[0]['href']}",
+            area=re.search('(\d|,)*? m²', candidate.select('.tw-text-sm')[1].text.strip()).group(0),
+            location=candidate.select('.tw-text-sm')[0].text.strip(),
+            url=f"https://www.century21.fr{candidate.select_one('a')['href']}",
             pics_urls=[f"https://www.century21.fr{i['href']}" for i in soup.select('.zone-galerie a[href]')]
         )
 
@@ -55,8 +55,7 @@ class Century21(AbstractService):
 
 
 if __name__ == '__main__':
-    f = Filter(arrondissements=[75002], max_price=1300,
+    f = Filter(arrondissements=[75013], max_price=2000,
                min_area=25)
     service = Century21(f, False)
     asyncio.get_event_loop().run_until_complete(service.run())
-    logging.info(service.notifications)

@@ -1,7 +1,6 @@
 import asyncio
-
 import json
-import logging
+
 from tornado.httpclient import HTTPRequest
 
 from notification_sender import Notification
@@ -35,13 +34,14 @@ class BienIci(AbstractService):
                             pics_urls=[p['url'] for p in candidate['photos']])
 
     async def run(self):
+        zones = ','.join([i for z in self.filter_zones for i in z['zoneIds']])
         url = 'https://www.bienici.com/realEstateAds.json?' \
               'filters={"size":500,"from":0,"filterType":"rent","propertyType":["house","flat"],' \
               '"maxPrice":' + str(self.filter.max_price) + ',"minArea":' + str(self.filter.min_area) + \
               ',"page":1,"resultsPerPage":2400,"maxAuthorizedResults":2400,"sortBy":"relevance",' \
               '"sortOrder":"desc","onTheMarket":[true],"showAllModels":false,' \
-              '"zoneIdsByTypes":{"zoneIds":[' + ','.join(
-            [i for z in self.filter_zones for i in z['zoneIds']]) + ']}}'
+              + ('"isFurnished":true,' if self.filter.furnished else '') + \
+              '"zoneIdsByTypes":{"zoneIds":[' + zones + ']}}'
 
         resp = await self.client.patient_fetch(
             connect_timeout=60, request_timeout=60 * 2,
@@ -54,9 +54,11 @@ class BienIci(AbstractService):
 
 if __name__ == '__main__':
     # , 75002, 75003, 75004, 75005, 75010, 75011, 75008, 75009
-    f = Filter(arrondissements=[75001],
-               max_price=1300,
-               min_area=25)
+    f = Filter(arrondissements=[75010],
+               max_price=1400,
+               # furnished=True,
+               min_area=35)
 
-    res = asyncio.get_event_loop().run_until_complete(BienIci(f).run())
-    logging.info(res)
+    service = BienIci(f, False)
+    res = asyncio.get_event_loop().run_until_complete(service.run())
+    service.logger.info(res)

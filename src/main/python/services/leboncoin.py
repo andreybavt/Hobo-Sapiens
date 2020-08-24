@@ -1,8 +1,7 @@
 import asyncio
+import json
 import math
 
-import json
-import logging
 from tornado.httpclient import HTTPRequest
 
 from crawler_utils.utils import read_prop
@@ -35,18 +34,22 @@ class LeBonCoin(AbstractService):
     async def run(self):
         first_page = await self.fetch()
         nb_pages = math.ceil(first_page['total'] / self.fetch_size)
-        resp_of_pages = [r.result() for r in
-                         (await asyncio.wait([self.fetch(i) for i in range(2, nb_pages + 1)]))[0]]
+
+        resp_of_pages = [] if nb_pages <= 1 else [r.result() for r in
+                                                  (await asyncio.wait([self.fetch(i) for i in range(2, nb_pages + 1)]))[
+                                                      0]]
         for p in (resp_of_pages + [first_page]):
             for i in (read_prop(p, 'ads', fallback=[]) + read_prop(p, 'ads_alu', fallback=[])):
                 await self.push_candidate(i)
 
     async def fetch(self, page=1):
         url = "https://api.leboncoin.fr/finder/search"
-        headers = {'cache-control': 'no-cache'}
+        headers = {'cache-control': 'no-cache',
+                   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36',
+                   'Content-Type': 'application/json'}
         res = await self.client.patient_fetch(
             HTTPRequest(method="POST", url=url, body=json.dumps(self.create_post_body(page)), headers=headers))
-        return json.loads(res.body.decode())
+        return res.json()
 
     def create_post_body(self, page=1):
         locations = [
@@ -56,9 +59,8 @@ class LeBonCoin(AbstractService):
         payload = {
             "limit": self.fetch_size, "offset": self.fetch_size * (page - 1), "limit_alu": 3, "filters": {
                 "category": {"id": "10"},
-                "enums": {"ad_type": ["offer"], "real_estate_type": ["1", "2"]},
+                "enums": {"ad_type": ["offer"]},
                 "location": {"locations": locations},
-                "keywords": {},
                 "ranges": {"square": {"min": self.filter.min_area},
                            "price": {"min": int(self.filter.max_price / 2), "max": self.filter.max_price}}}}
 
@@ -69,8 +71,7 @@ class LeBonCoin(AbstractService):
 
 
 if __name__ == '__main__':
-    f = Filter(arrondissements=[75001, 75002, 75003, 75004, 75005, 75010, 75011, 75008, 75009], max_price=1300,
-               min_area=25)
+    f = Filter(arrondissements=[75018], max_price=2000, min_area=27)
     coin = LeBonCoin(f, enable_proxy=False)
-    res = asyncio.get_event_loop().run_until_complete(coin.run())
-    logging.info(len(coin.notifications))
+    res = asyncio.get_event_loop().run_until_complete(coin.main_run())
+

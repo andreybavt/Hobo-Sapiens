@@ -59,8 +59,9 @@ class MeilleursAgents(AbstractService):
             "page": str(page)
         }
         params_encoded = urlencode(params, safe=',')
-        res = await self.client.patient_fetch(
-            HTTPRequest(url=f"{url}?{params_encoded}", headers={"accept": "application/json"}))
+        res = await self.client.patient_fetch(HTTPRequest(url=f"{url}?{params_encoded}"))
+        import requests
+        res_sync = requests.get(f"{url}?{params_encoded}")
         soup = BeautifulSoup(json.loads(res.body.decode())['html'], 'lxml')
         if soup.select('.pagination__page'):
             total_pages = int(soup.select('.pagination__page')[-1]['data-paginate-page-num'])
@@ -86,4 +87,4 @@ if __name__ == '__main__':
     f = Filter(arrondissements=[75001, 75002, 75003, 75011], max_price=1300, min_area=25)
     service = MeilleursAgents(f, False)
     asyncio.get_event_loop().run_until_complete(service.run())
-    logging.info(service.notifications)
+

@@ -69,4 +69,3 @@ if __name__ == '__main__':
                min_area=25)
     service = AvendreAlouer(f)
     asyncio.get_event_loop().run_until_complete(service.run())
-    logging.info(len(service.notifications))

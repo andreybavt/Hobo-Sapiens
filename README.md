@@ -1,4 +1,4 @@
-# ApartFacile 
+# Hobo Sapiens 
 ## This is a bot that monitors Parisian real estate agencies and send notifications about new flats to Telegram
 
 ## Prerequisites
@@ -14,41 +14,31 @@ pip install -r requirements.txt
 ## Run
 Edit `filter.json` according to your criterias, then:
 ```
-AF_TELEGRAM_BOT_TOKEN="XXX" AF_TELEGRAM_CHAT_ID="XXX" python3 runner.py
+HS_TELEGRAM_BOT_TOKEN="XXX" HS_TELEGRAM_CHAT_ID="XXX" python3 runner.py
 ```
 
 Where the environment variables are:
 
-`AF_TELEGRAM_BOT_TOKEN` - contains telegram bot token
+`HS_TELEGRAM_BOT_TOKEN` - contains telegram bot token
 
-`AF_TELEGRAM_CHAT_ID` - contains telegram chat id where the notifications will be posted
+`HS_TELEGRAM_CHAT_ID` - contains telegram chat id where the notifications will be posted
 
 ## Currently supported agencies:
 
-- Bienici
-- Laforet
-- Leboncoin
-- PAP
-- Seloger
-- Figaro Immo
 - AvendreAlouer
+- BienIci
 - Century21
-- LouerVite
+- Figaro
+- Laforet
+- LeBonCoin
+- LogicImmo
+- Orpi
+- Pap
+- Seloger
 
 ## Contribution
 Contribution is welcome. It's best to add more proxy retrievers or/and agencies websites scrappers.
 
-### New proxy retriever:
-  Proxy management is done in `crawler_utils.async_proxy.ProxyManager#fetch_proxies`
-  
-  In order to add another proxy provider you can add another function like `fetch_a2u` that returns a list of 
-  
-  `crawler_utils.async_proxy.Proxy`
-  
-  and call this new function below like:
-  
-  `all_found_proxies_result += fetch_clarketm()`
-  
 ### New agency scrapper:
   All agency scrappers have the same tructure inheriting 
   

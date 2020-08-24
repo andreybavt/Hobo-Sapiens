@@ -13,7 +13,7 @@ from crawler_utils.utils import nofail_async
 class ImageManager:
     def __init__(self) -> None:
         super().__init__()
-        self.image_hashes = shelve.open('image_hashes')
+        self.image_hashes = shelve.open('data/image_hashes')
         self.client = AsyncProxyClient()
 
     @nofail_async(retries=5, failback_result=(None, None))

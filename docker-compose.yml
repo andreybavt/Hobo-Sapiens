@@ -1,0 +1,22 @@
+version: '2.0'
+services:
+  crawler:
+    build:
+      dockerfile: crawler.Dockerfile
+      context: .
+    container_name: hobo-sapiens-crawler
+    environment:
+      - HS_TELEGRAM_BOT_TOKEN
+      - HS_TELEGRAM_CHAT_ID
+
+#    ports:
+#    - "5000:5000"
+#    volumes:
+#    - .:/code
+#    - logvolume01:/var/log
+#    links:
+#    - redis
+#  redis:
+#    image: redis
+#volumes:
+#  logvolume01: {}
