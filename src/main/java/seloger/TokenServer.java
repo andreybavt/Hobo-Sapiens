@@ -25,7 +25,7 @@ class TokenServer {
     static final Logger logger = Logger.getLogger("Server");
 
     public static void main(String[] args) throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8001), 0);
+        HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", 8001), 0);
 
         server.createContext("/seloger-auth", new TokenServer.MyHttpHandler());
         server.setExecutor(Executors.newFixedThreadPool(3));

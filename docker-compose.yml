@@ -1,5 +1,11 @@
 version: '2.0'
 services:
+  selogertoken:
+    build:
+      dockerfile: seloger-token.Dockerfile
+      context: .
+    container_name: hobo-seloger-token
+
   crawler:
     build:
       dockerfile: crawler.Dockerfile
@@ -8,6 +14,7 @@ services:
     environment:
       - HS_TELEGRAM_BOT_TOKEN
       - HS_TELEGRAM_CHAT_ID
+      - HS_SELOGER_TOKEN_HOST=selogertoken
 
 #    ports:
 #    - "5000:5000"

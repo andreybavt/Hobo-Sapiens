@@ -36,7 +36,9 @@ class Seloger(AbstractService):
 
     def init_auth_token(self):
         import requests
-        token = requests.get('http://localhost:8001/seloger-auth').text
+        seloger_token_host = os.environ.get('HS_SELOGER_TOKEN_HOST', 'localhost')
+        seloger_token_port = os.environ.get('HS_SELOGER_TOKEN_PORT', '8001')
+        token = requests.get(f'http://{seloger_token_host}:{seloger_token_port}/seloger-auth').text
         self.headers['apptoken'] = token
         token = requests.get('https://api-seloger.svc.groupe-seloger.com/api/v1/security/authenticate',
                              headers=self.headers).text

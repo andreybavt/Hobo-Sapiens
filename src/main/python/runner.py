@@ -1,22 +1,29 @@
 import asyncio
 import logging
 import os
+import sys
 import time
 import traceback
+from pathlib import Path
+from typing import List
 
-import jsonpickle
+from dataclasses import dataclass
+from dataclasses_json import dataclass_json
 
 
+@dataclass_json
+@dataclass
 class Filter:
-    def __init__(self, arrondissements, max_price, min_area, furnished=None) -> None:
-        super().__init__()
-        self.arrondissements = arrondissements
-        self.max_price = max_price
-        self.min_area = min_area
-        self.furnished = furnished
+    arrondissements: List[str]
+    max_price: float
+    min_area: float
+    furnished: bool
 
 
 if __name__ == '__main__':
+    assert len(sys.argv) > 1, 'Path to filter.json is required'
+    filter_path = Path(os.getcwd()).joinpath(sys.argv[1])
+
     if not os.environ.get('HS_TELEGRAM_BOT_TOKEN'):
         raise Exception('Environment variable HS_TELEGRAM_BOT_TOKEN should be set to telegram bot token')
 
@@ -34,15 +41,15 @@ if __name__ == '__main__':
     from services.century21 import Century21
     from services.orpi import Orpi
 
-    # from services.meilleursagents import MeilleursAgents
     from services.logicimmo import LogicImmo
 
     notification_sender = NotificationSender()
 
-    with open('filter.json', 'r') as  f:
-        pub_filter = jsonpickle.decode(f.read())
+    with open(filter_path, 'r') as f:
+        pub_filter = Filter.from_json(f.read())
 
     service_classes = [
+        Seloger,
         Orpi,
         AvendreAlouer,
         BienIci,
@@ -51,8 +58,7 @@ if __name__ == '__main__':
         Laforet,
         LeBonCoin,
         LogicImmo,
-        Pap,
-        Seloger
+        Pap
     ]
     services = [s(pub_filter, False) for s in service_classes]
     loop = asyncio.get_event_loop()
@@ -69,7 +75,7 @@ if __name__ == '__main__':
                 logging.info(
                     f"Sending notification {i + 1} of {len(service.notifications)} for {service.get_service_name()}")
                 notification_sender.send_to_chat(n)
-                loop.run_until_complete(service.seen_ids.add(n.id))
+                service.seen_ids.add(n.id, None)
                 time.sleep(0.5)
         logging.info("Done loop, next run in 20 min")
         time.sleep(60*10)

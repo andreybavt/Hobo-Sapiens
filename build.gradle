@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+mainClassName = "seloger.TokenServer"
+
+group 'hobo.sapiens'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile 'io.jsonwebtoken:jjwt:0.7.0'
+    compile group: 'log4j', name: 'log4j', version: '1.2.12'
+}

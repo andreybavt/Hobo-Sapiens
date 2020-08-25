@@ -35,7 +35,7 @@ class NotificationSender:
     def __init__(self) -> None:
         self.image_manager = ImageManager()
         self.updater = Updater(token=environ.get('HS_TELEGRAM_BOT_TOKEN'),
-                               request_kwargs={"connect_timeout": 60., "read_timeout": 60.})
+                               request_kwargs={"connect_timeout": 60., "read_timeout": 60.}, use_context=True)
 
     def send_to_chat(self, notif: Notification):
         desc = f'ID: {notif.id}\nPrice: {notif.price}\nArea: {notif.area}\nWhere: {notif.location}\nURL: {notif.url} '

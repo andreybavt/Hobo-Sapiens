@@ -4,3 +4,5 @@ venv
 env
 .idea/*
 target
+build
+.gradle
