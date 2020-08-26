@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import diskcache as dc
+from prometheus_client import Counter, Histogram
 
 logging.basicConfig(stream=sys.stdout, level=os.environ.get('LOGLEVEL', 'INFO').upper(),
                     format='%(asctime)s %(levelname)s %(name)s: %(message)s')
@@ -16,14 +17,23 @@ from runner import Filter
 
 
 class AbstractService:
+    METRICS_RUN_COUNT = Counter('service_runs', 'Number of service runs', ['service'])
+    METRICS_INIT_TIME = Histogram('service_init_time_sec', 'Time to initialize a service', ['service'])
+    METRICS_RUN_TIME = Histogram('service_run_time_sec', 'Time to run a service', ['service'])
+    METRICS_NOTIFICATIONS_COUNT = Counter('service_listing_count', 'Number of notifications found', ['service'])
 
     def __init__(self, f: Filter, enable_proxy=None,
                  storage_path=Path.home().joinpath('.hobo-sapiens', 'listings')) -> None:
+
+        self.METRICS_RUN_COUNT = self.METRICS_RUN_COUNT.labels(self.get_service_name())
+        self.METRICS_INIT_TIME = self.METRICS_INIT_TIME.labels(self.get_service_name())
+        self.METRICS_RUN_TIME = self.METRICS_RUN_TIME.labels(self.get_service_name())
+        self.METRICS_NOTIFICATIONS_COUNT = self.METRICS_NOTIFICATIONS_COUNT.labels(self.get_service_name())
+
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info("INITIALIZING")
         self.filter = f
-        self.client = AsyncProxyClient(enable_proxy=True if enable_proxy is None else enable_proxy)
-        # self.client.before_retry_callback = self.before_retry_callback
+        self.client = AsyncProxyClient(enable_proxy=True if enable_proxy is None else enable_proxy, monitoring=True)
         self.client.fetch_opts = {
             "connect_timeout": 8,
             "request_timeout": 40
@@ -32,10 +42,6 @@ class AbstractService:
         self.notifications: Set[Notification] = set()
         if hasattr(self.client, 'proxy_manager'):
             self.client.proxy_manager.penalty_fn = lambda e: 2
-
-    # def before_retry_callback(self, *args, **kwargs):
-    #     self.logger.warning(f"BEFORE_RETRY_CALLBACK, sleeping for 1 min")
-    #     time.sleep(60)
 
     def get_service_name(self) -> str:
         return self.__class__.__name__
@@ -74,7 +80,12 @@ class AbstractService:
         return [e for e in candidates if self.get_service_prefixed_id(e) not in self.seen_ids]
 
     async def main_run(self):
+        self.METRICS_RUN_COUNT.inc()
+
         self.logger.info(f"Running")
         self.notifications = set()
-        await self.run()
+        with self.METRICS_RUN_TIME.time():
+            await self.run()
+
+        self.METRICS_NOTIFICATIONS_COUNT.inc(len(self.notifications))
         self.logger.info(f"Ended, number of notifications: {len(self.notifications)}")

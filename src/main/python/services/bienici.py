@@ -12,13 +12,14 @@ class BienIci(AbstractService):
 
     def __init__(self, f: Filter, *args, **kwargs) -> None:
         super().__init__(f, *args, **kwargs)
-        self.url = 'https://www.bienici.com/realEstateAds.json'
+        with self.METRICS_INIT_TIME.time():
+            self.url = 'https://www.bienici.com/realEstateAds.json'
 
-        arr_responses = asyncio.get_event_loop().run_until_complete(
-            asyncio.wait([self.client.patient_fetch(
-                HTTPRequest(method="GET", url='https://res.bienici.com/suggest.json?q=' + str(a))) for a in
-                f.arrondissements]))
-        self.filter_zones = [json.loads(i.result().body.decode())[0] for i in arr_responses[0]]
+            arr_responses = asyncio.get_event_loop().run_until_complete(
+                asyncio.wait([self.client.patient_fetch(
+                    HTTPRequest(method="GET", url='https://res.bienici.com/suggest.json?q=' + str(a))) for a in
+                    f.arrondissements]))
+            self.filter_zones = [json.loads(i.result().body.decode())[0] for i in arr_responses[0]]
 
     def get_service_name(self) -> str:
         return "BienIci"

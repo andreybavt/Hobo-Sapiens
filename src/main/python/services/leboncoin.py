@@ -14,7 +14,8 @@ class LeBonCoin(AbstractService):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.fetch_size = 35
+        with self.METRICS_INIT_TIME.time():
+            self.fetch_size = 35
 
     def get_service_name(self) -> str:
         return "LeBonCoin"

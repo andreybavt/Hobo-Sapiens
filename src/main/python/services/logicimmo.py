@@ -19,7 +19,8 @@ class LogicImmo(AbstractService):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.locality_codes = asyncio.get_event_loop().run_until_complete(self.search_localities())
+        with self.METRICS_INIT_TIME.time():
+            self.locality_codes = asyncio.get_event_loop().run_until_complete(self.search_localities())
 
     def get_candidate_native_id(self, candidate) -> str:
         return candidate['identifiers']['reference']

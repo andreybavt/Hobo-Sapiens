@@ -16,7 +16,7 @@ class ImageManager:
         super().__init__()
         self.image_hashes = dc.Cache(str(storage_path))
 
-        self.client = AsyncProxyClient()
+        self.client = AsyncProxyClient(monitoring=True)
 
     @nofail_async(retries=5, failback_result=(None, None))
     async def get_image_hash(self, image_url):

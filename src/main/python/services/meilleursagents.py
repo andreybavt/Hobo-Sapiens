@@ -25,11 +25,12 @@ class ChunkReader:
 class MeilleursAgents(AbstractService):
 
     def __init__(self, f: Filter, enable_proxy=None, *args, **kwargs) -> None:
-        super().__init__(f, enable_proxy, *args, **kwargs)
-        geo = asyncio.get_event_loop().run_until_complete(self.client.patient_fetch(
-            HTTPRequest(url="https://geo.meilleursagents.com/geo/v1/?q=750&types=subregions,cities,arrmuns")))
-        self.zip_map = {i['zip']: i for i in read_prop(json.loads(geo.body.decode()), 'response', 'places')}
-        self.arr_to_zip = {i['name_short']: i['zip'] for i in self.zip_map.values()}
+        with self.METRICS_INIT_TIME.time():
+            super().__init__(f, enable_proxy, *args, **kwargs)
+            geo = asyncio.get_event_loop().run_until_complete(self.client.patient_fetch(
+                HTTPRequest(url="https://geo.meilleursagents.com/geo/v1/?q=750&types=subregions,cities,arrmuns")))
+            self.zip_map = {i['zip']: i for i in read_prop(json.loads(geo.body.decode()), 'response', 'places')}
+            self.arr_to_zip = {i['name_short']: i['zip'] for i in self.zip_map.values()}
 
     def get_candidate_native_id(self, candidate) -> str:
         return candidate.id

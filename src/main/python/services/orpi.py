@@ -20,7 +20,8 @@ class Orpi(AbstractService):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.locations = asyncio.get_event_loop().run_until_complete(self.search_locations())
+        with self.METRICS_INIT_TIME.time():
+            self.locations = asyncio.get_event_loop().run_until_complete(self.search_locations())
 
     def get_candidate_native_id(self, candidate) -> str:
         return candidate['id']

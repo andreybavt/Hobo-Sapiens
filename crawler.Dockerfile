@@ -5,6 +5,5 @@ WORKDIR /usr/src/app
 COPY src/main/resources/requirements.txt ./
 RUN pip install -r requirements.txt
 COPY src/main/python .
-COPY filter.json .
 
 CMD ["python", "./runner.py", "filter.json"]

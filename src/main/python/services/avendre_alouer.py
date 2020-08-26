@@ -17,14 +17,15 @@ class AvendreAlouer(AbstractService):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.fetch_size = 100
+        with self.METRICS_INIT_TIME.time():
+            self.fetch_size = 100
 
-        location_url = "https://ws-web.avendrealouer.fr/ref/localities/_autocomplete?term="
-        self.auth_header = {"Authorization": "Basic ed9650a3:cc0d1854ffa93628166452d2258ec162"}
-        res = get_tasks_results(asyncio.get_event_loop().run_until_complete(asyncio.wait(
-            [self.client.patient_fetch(HTTPRequest(method="GET", url=location_url + str(i), headers=self.auth_header))
-             for i in self.filter.arrondissements])), is_json=True)
-        self.locality_ids = ','.join([i['items'][0]['id'] for i in res])
+            location_url = "https://ws-web.avendrealouer.fr/ref/localities/_autocomplete?term="
+            self.auth_header = {"Authorization": "Basic ed9650a3:cc0d1854ffa93628166452d2258ec162"}
+            res = get_tasks_results(asyncio.get_event_loop().run_until_complete(asyncio.wait(
+                [self.client.patient_fetch(HTTPRequest(method="GET", url=location_url + str(i), headers=self.auth_header))
+                 for i in self.filter.arrondissements])), is_json=True)
+            self.locality_ids = ','.join([i['items'][0]['id'] for i in res])
 
     def get_candidate_native_id(self, candidate) -> str:
         return candidate['id']
