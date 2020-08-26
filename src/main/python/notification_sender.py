@@ -1,5 +1,4 @@
 import logging
-import time
 import traceback
 from os import environ
 
@@ -51,7 +50,6 @@ class NotificationSender:
             new_images = []
             try:
                 for c in chunks(notif.pics_urls, 10):
-                    time.sleep(5)
                     new_images, seen_in_messages = self.image_manager.check_all(notif, c)
                     seen_in = None if not len(seen_in_messages) else seen_in_messages.pop()
                     reference_message = None if not seen_in else seen_in.get('message_id')
@@ -85,7 +83,7 @@ class NotificationSender:
                                           reply_to_message_id=reference_message,
                                           disable_notification=reference_message is not None)
 
-    @nofail(retries=20, failback_result=None)
+    @nofail(retries=20, sleep=0.5, failback_result=None)
     def _send_pics(self, c, chat_id, desc, **kwargs):
         with self.METRICS_NOTIFICATION_TIME.labels('pics').time():
             return self.updater.bot.send_media_group(chat_id, [InputMediaPhoto(i, caption=desc) for i in c],

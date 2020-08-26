@@ -96,7 +96,7 @@ if __name__ == '__main__':
                 notification_sender.send_to_chat(n)
                 service.seen_ids.add(n.id, None)
                 time.sleep(0.5)
-        sleep_until_next_run_sec = max(60 * SCRAPE_INTERVAL_MIN - (time.time() - last_run), 0)
+        sleep_until_next_run_sec = max(int(60 * SCRAPE_INTERVAL_MIN - (time.time() - last_run)), 0)
 
         logging.info(f"Done loop, next run in {sleep_until_next_run_sec} sec")
         time.sleep(sleep_until_next_run_sec)
