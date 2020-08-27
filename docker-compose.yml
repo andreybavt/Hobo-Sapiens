@@ -7,8 +7,8 @@ services:
       context: .
     container_name: hobo-seloger-token
     restart: unless-stopped
-    ports:
-      - 8001:8001
+    expose:
+      - 8001
 
   crawler:
     build:
@@ -29,8 +29,6 @@ services:
       - HS_SELOGER_TOKEN_HOST=selogertoken
     expose:
       - 5000
-    ports:
-      - 5000:5000
 
   prometheus:
     image: prom/prometheus:latest
@@ -44,8 +42,6 @@ services:
       - '--storage.tsdb.path=/prometheus'
     expose:
       - 9090
-    ports:
-      - 9090:9090
 
   grafana:
     image: grafana/grafana:latest
@@ -66,7 +62,7 @@ services:
 #      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
 #      - GF_USERS_ALLOW_SIGN_UP=false
 
-      - GF_SECURITY_ADMIN_PASSWORD=admin #MYPASSWORT
+      - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SERVER_DOMAIN=myrul.com
       - GF_SMTP_ENABLED=true

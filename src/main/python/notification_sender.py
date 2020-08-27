@@ -1,5 +1,6 @@
 import logging
 import traceback
+from io import BytesIO
 from os import environ
 
 from prometheus_client.metrics import Counter, Histogram
@@ -58,13 +59,12 @@ class NotificationSender:
                     self.logger.info(f"Found photo duplicates: {notif.url} vs. {seen_in['notif'].url}")
                 if len(new_images):
                     self.logger.info(f"Sending {len(new_images)} images")
-                    send_pic_res = self._send_pics(new_images.keys(), chat_id, desc,
+                    send_pic_res = self._send_pics(new_images, chat_id, desc,
                                                    reply_to_message_id=reference_message)
-                    if send_pic_res:
-                        first_pic = send_pic_res[0]
-                        if hasattr(first_pic, 'message_id'):
-                            self.image_manager.set_message_ids([v['hash'] for v in new_images.values()],
-                                                               first_pic.message_id)
+                    if send_pic_res and hasattr(send_pic_res[0], 'message_id'):
+                        self.image_manager.set_message_ids([v['hash'] for v in new_images.values()],
+                                                           send_pic_res[0].message_id)
+
         except Exception as e:
             self.logger.error(e, traceback.format_exc())
 
@@ -86,5 +86,7 @@ class NotificationSender:
     @nofail(retries=20, sleep=1, failback_result=None)
     def _send_pics(self, c, chat_id, desc, **kwargs):
         with self.METRICS_NOTIFICATION_TIME.labels('pics').time():
-            return self.updater.bot.send_media_group(chat_id, [InputMediaPhoto(i, caption=desc) for i in c],
+            return self.updater.bot.send_media_group(chat_id,
+                                                     [InputMediaPhoto(BytesIO(i['image']), caption=desc) for i in
+                                                      c.values()],
                                                      timeout=20 * 60, disable_notification=True, **kwargs)
