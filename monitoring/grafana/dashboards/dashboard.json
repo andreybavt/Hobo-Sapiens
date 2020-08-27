@@ -34,10 +34,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -45,7 +41,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 11,
         "w": 24,
         "x": 0,
         "y": 0
@@ -111,7 +107,7 @@
         "h": 4,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 11
       },
       "id": 8,
       "options": {
@@ -171,7 +167,7 @@
         "h": 8,
         "w": 3,
         "x": 10,
-        "y": 12
+        "y": 15
       },
       "id": 12,
       "options": {
@@ -191,7 +187,7 @@
       "pluginVersion": "7.1.5",
       "targets": [
         {
-          "expr": "increase(service_runs_total{service=\"Seloger\"}[$__range])",
+          "expr": "increase(nb_runs_total[$__range])",
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
@@ -231,7 +227,7 @@
         "h": 8,
         "w": 9,
         "x": 15,
-        "y": 12
+        "y": 15
       },
       "id": 10,
       "options": {
@@ -263,7 +259,7 @@
       "type": "stat"
     }
   ],
-  "refresh": "5s",
+  "refresh": "30s",
   "schemaVersion": 26,
   "style": "dark",
   "tags": [],
@@ -291,5 +287,5 @@
   "timezone": "",
   "title": "Hobo Sapiens",
   "uid": "f0AJPPNMk",
-  "version": 6
+  "version": 2
 }

@@ -1,6 +1,12 @@
 # Hobo Sapiens 
 ## This is a bot that monitors Parisian real estate agencies and send notifications about new flats to Telegram
 
+| ![](./docs/bot-demo.gif) | ![](./docs/bot.png)|
+|---------|---------|
+
+![](./docs/grafana.png)
+
+
 ## Prerequisites
 - Python 3 (optionally a separate virtual environment)
 - [Telegram bot](https://core.telegram.org/bots#3-how-do-i-create-a-bot)

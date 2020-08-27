@@ -42,38 +42,38 @@ class NotificationSender:
     def send_to_chat(self, notif: Notification):
         desc = f'ID: {notif.id}\nPrice: {notif.price}\nArea: {notif.area}\nWhere: {notif.location}\nURL: {notif.url} '
         self.METRICS_NOTIFICATION_COUNT.labels(notif.source).inc()
+        chat_id = environ.get('HS_TELEGRAM_CHAT_ID')
+        reference_message = None
+        if not notif.pics_urls:
+            return
+        new_images = []
         try:
-            chat_id = environ.get('HS_TELEGRAM_CHAT_ID')
-            reference_message = None
-            if not notif.pics_urls:
-                return
-            new_images = []
-            try:
-                for c in chunks(notif.pics_urls, 10):
-                    new_images, seen_in_messages = self.image_manager.check_all(notif, c)
-                    seen_in = None if not len(seen_in_messages) else seen_in_messages.pop()
-                    reference_message = None if not seen_in else seen_in.get('message_id')
-                    if reference_message:
-                        self.logger.info(f"Found photo duplicates: {notif.url} vs. {seen_in['notif'].url}")
-                    if len(new_images):
-                        self.logger.info(f"Sending {len(new_images)} images")
-                        send_pic_res = self._send_pics(new_images.keys(), chat_id, desc,
-                                                       reply_to_message_id=reference_message)
+            for c in chunks(notif.pics_urls, 10):
+                logging.info("BEfore image_manager.check_all")
+                new_images, seen_in_messages = self.image_manager.check_all(notif, c)
+                logging.info("After image_manager.check_all")
+                seen_in = None if not len(seen_in_messages) else seen_in_messages.pop()
+                reference_message = None if not seen_in else seen_in.get('message_id')
+                if reference_message:
+                    self.logger.info(f"Found photo duplicates: {notif.url} vs. {seen_in['notif'].url}")
+                if len(new_images):
+                    self.logger.info(f"Sending {len(new_images)} images")
+                    send_pic_res = self._send_pics(new_images.keys(), chat_id, desc,
+                                                   reply_to_message_id=reference_message)
+                    if send_pic_res:
                         first_pic = send_pic_res[0]
                         if hasattr(first_pic, 'message_id'):
                             self.image_manager.set_message_ids([v['hash'] for v in new_images.values()],
                                                                first_pic.message_id)
-            except Exception as e:
-                self.logger.error(e)
-
-            if len(new_images):
-                self._send_message(chat_id, desc, reference_message=reference_message)
-            else:
-                self.logger.info("No new images found, not sending the message")  # TODO: check if price has changed
         except Exception as e:
             self.logger.error(e, traceback.format_exc())
 
-    @nofail(retries=20)
+        if len(new_images):
+            self._send_message(chat_id, desc, reference_message=reference_message)
+        else:
+            self.logger.info("No new images found, not sending the message")  # TODO: check if price has changed
+
+    @nofail(retries=20, sleep=1, failback_result=None)
     def _send_message(self, chat_id, desc, reference_message=None):
         with self.METRICS_NOTIFICATION_TIME.labels('message').time():
             log_msg = desc.replace('\n', '; ')
@@ -83,7 +83,7 @@ class NotificationSender:
                                           reply_to_message_id=reference_message,
                                           disable_notification=reference_message is not None)
 
-    @nofail(retries=20, sleep=0.5, failback_result=None)
+    @nofail(retries=20, sleep=1, failback_result=None)
     def _send_pics(self, c, chat_id, desc, **kwargs):
         with self.METRICS_NOTIFICATION_TIME.labels('pics').time():
             return self.updater.bot.send_media_group(chat_id, [InputMediaPhoto(i, caption=desc) for i in c],

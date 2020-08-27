@@ -9,7 +9,7 @@ from typing import List, Union
 
 from dataclasses import dataclass
 from dataclasses_json import dataclass_json
-from prometheus_client import start_http_server, Gauge
+from prometheus_client import start_http_server, Gauge, Counter
 
 
 @dataclass_json
@@ -54,6 +54,7 @@ def init_services():
 
 if __name__ == '__main__':
     METRIC_NB_SERVICES = Gauge('nb_available_services', 'Description of gauge')
+    METRICS_RUN_COUNT = Counter('nb_runs', 'Number of global runs')
 
     # Start prometheus exporter
     start_http_server(5000)
@@ -99,4 +100,5 @@ if __name__ == '__main__':
         sleep_until_next_run_sec = max(int(60 * SCRAPE_INTERVAL_MIN - (time.time() - last_run)), 0)
 
         logging.info(f"Done loop, next run in {sleep_until_next_run_sec} sec")
+        METRICS_RUN_COUNT.inc()
         time.sleep(sleep_until_next_run_sec)

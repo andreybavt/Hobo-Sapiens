@@ -1,5 +1,6 @@
 import asyncio
 import io
+import logging
 from pathlib import Path
 
 import diskcache as dc
@@ -12,6 +13,8 @@ from crawler_utils.utils import nofail_async
 
 
 class ImageManager:
+    logger = logging.getLogger(__name__)
+
     def __init__(self, storage_path=Path.home().joinpath('.hobo-sapiens', 'image-hashes')) -> None:
         super().__init__()
         self.image_hashes = dc.Cache(str(storage_path))
@@ -22,21 +25,19 @@ class ImageManager:
     async def get_image_hash(self, image_url):
         res = await self.client.fetch(HTTPRequest(method='GET', url=image_url), use_proxy_for_request=False)
         image = Image.open(io.BytesIO(res.body))
-        return image_url, imagehash.average_hash(image)
+        return image_url, str(imagehash.average_hash(image))
 
     def check_all(self, notification, urls):
         output = {}
         seen_in_messages = []
-        res = asyncio.get_event_loop().run_until_complete(asyncio.wait([
-            self.get_image_hash(i) for i in urls
-        ]))
-        for url, hash in [r.result() for r in res[0] if res[0]]:
-            hash_str = str(hash)
-            if hash_str not in self.image_hashes:
-                self.image_hashes[hash_str] = {"hash": hash_str, "notif": notification}
-                output[url] = self.image_hashes[hash_str]
+        loop = asyncio.get_event_loop()
+        for url in urls:
+            _, img_hash = loop.run_until_complete(self.get_image_hash(url))
+            if img_hash not in self.image_hashes:
+                self.image_hashes[img_hash] = {"hash": img_hash, "notif": notification}
+                output[url] = self.image_hashes[img_hash]
             else:
-                seen_in_messages.append(self.image_hashes[hash_str])
+                seen_in_messages.append(self.image_hashes[img_hash])
         return output, seen_in_messages
 
     def set_message_ids(self, hashes, message_id):

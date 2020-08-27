@@ -80,12 +80,11 @@ class AbstractService:
         return [e for e in candidates if self.get_service_prefixed_id(e) not in self.seen_ids]
 
     async def main_run(self):
-        self.METRICS_RUN_COUNT.inc()
-
         self.logger.info(f"Running")
         self.notifications = set()
         with self.METRICS_RUN_TIME.time():
             await self.run()
 
         self.METRICS_NOTIFICATIONS_COUNT.inc(len(self.notifications))
+        self.METRICS_RUN_COUNT.inc()
         self.logger.info(f"Ended, number of notifications: {len(self.notifications)}")
