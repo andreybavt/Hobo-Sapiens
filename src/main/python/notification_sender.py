@@ -50,9 +50,7 @@ class NotificationSender:
         new_images = []
         try:
             for c in chunks(notif.pics_urls, 10):
-                logging.info("BEfore image_manager.check_all")
                 new_images, seen_in_messages = self.image_manager.check_all(notif, c)
-                logging.info("After image_manager.check_all")
                 seen_in = None if not len(seen_in_messages) else seen_in_messages.pop()
                 reference_message = None if not seen_in else seen_in.get('message_id')
                 if reference_message:
