@@ -1,8 +1,7 @@
 # Hobo Sapiens 
 ## This is a bot that monitors Parisian real estate agencies and sends notifications about new flat rent offers to Telegram
 
-| ![](./docs/bot-demo.gif) | ![](./docs/bot.png)|
-|---------|---------|
+![](./docs/bot.png)
 
 ## Currently supported agencies:
 
@@ -25,7 +24,7 @@
 Clone this repository with `--recursive` flag
 
 ## Quick start
-> `docker-copose` is required for quick start
+> `docker-compose` is required
 
 Modify `filter.json` in the root of the repository according to your needs. The format is self-explanatory, there are 3 options:
 - arrondissements [mandatory] - list of 750* zip codes to search in
@@ -54,11 +53,13 @@ Where the environment variables are:
 
 ## Monitoring
 Apart from the bot itself there will be pre-configured instances of [Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/) started for monitoring purposes.
-Grafana is accessible on 
+
+Grafana is accessible at 
 >http://localhost:13000
 
 >admin / admin 
 
+It shows the number of notifications sent per source, time it took to collect the information and some other metrics.
 ![](./docs/grafana.png)
 
 To run crawling without monitoring run:
@@ -67,7 +68,7 @@ docker-compose up crawler -d
 ```
 
 ## Data Storage
-Data is stored in the `~/.hobo-sapiens/` directory.
+Data is stored in the `~/.hobo-sapiens` directory.
 
 ## Listing deduplication
 In order to detect duplicate annoucements posted on different websites the service uses [Image hashing techniques](https://web.archive.org/web/20171112054354/https://www.safaribooksonline.com/blog/2013/11/26/image-hashing-with-python/).
