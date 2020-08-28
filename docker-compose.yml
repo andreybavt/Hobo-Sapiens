@@ -50,18 +50,12 @@ services:
     depends_on:
       - prometheus
     ports:
-      - 3000:3000
+      - 0.0.0.0:13000:3000
     volumes:
       - ~/.hobo-sapiens/grafana:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning/
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
     environment:
-#      - GF_AUTH_DISABLE_LOGIN_FORM=true
-#      - GF_AUTH_ANONYMOUS_ENABLED=true
-#      - GF_AUTH_ANONYMOUS_ORG_NAME=Main Org.
-#      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-#      - GF_USERS_ALLOW_SIGN_UP=false
-
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SERVER_DOMAIN=myrul.com
