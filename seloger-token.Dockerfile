@@ -1,4 +1,4 @@
-FROM maven:3-openjdk-8
+FROM openjdk:8-alpine
 EXPOSE 8001
 
 WORKDIR /usr/src/app

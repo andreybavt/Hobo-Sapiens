@@ -35,7 +35,9 @@ def init_services():
     from services.century21 import Century21
     from services.orpi import Orpi
     from services.logicimmo import LogicImmo
+    from services.moteurimmo import MoteurImmo
     service_classes = [
+        MoteurImmo,
         Orpi,
         AvendreAlouer,
         BienIci,

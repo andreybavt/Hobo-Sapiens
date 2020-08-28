@@ -5,6 +5,7 @@
 
 ## Currently supported agencies:
 
+- MoteurImmo
 - AvendreAlouer
 - BienIci
 - Century21

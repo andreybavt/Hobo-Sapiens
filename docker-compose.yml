@@ -10,6 +10,15 @@ services:
     expose:
       - 8001
 
+  moteurimmotoken:
+    build:
+      dockerfile: moteurimmo-token.Dockerfile
+      context: .
+    container_name: hobo-moteurimmo-token
+    restart: unless-stopped
+    expose:
+      - 18081
+
   crawler:
     build:
       dockerfile: crawler.Dockerfile
@@ -20,13 +29,14 @@ services:
       - ~/.hobo-sapiens/listings:/root/.hobo-sapiens/listings
       - ~/.hobo-sapiens/image-hashes:/root/.hobo-sapiens/image-hashes
       - ./filter.json:/usr/src/app/filter.json
-
     depends_on:
       - selogertoken
+      - moteurimmotoken
     environment:
       - HS_TELEGRAM_BOT_TOKEN
       - HS_TELEGRAM_CHAT_ID
       - HS_SELOGER_TOKEN_HOST=selogertoken
+      - HS_MOTEURIMMO_TOKEN_HOST=moteurimmotoken
     expose:
       - 5000
 

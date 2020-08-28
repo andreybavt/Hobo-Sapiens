@@ -11,6 +11,7 @@ from services.figaro import Figaro
 from services.laforet import Laforet
 from services.leboncoin import LeBonCoin
 from services.logicimmo import LogicImmo
+from services.moteurimmo import MoteurImmo
 from services.orpi import Orpi
 from services.pap import Pap
 from services.seloger import Seloger
@@ -54,6 +55,9 @@ def test_seloger():
 
 def test_laforet():
     smoke_test(Laforet)
+
+def test_moteurimmo():
+    smoke_test(MoteurImmo)
 
 
 from typing import Type

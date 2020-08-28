@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import sys
@@ -42,9 +43,16 @@ class AbstractService:
         self.notifications: Set[Notification] = set()
         if hasattr(self.client, 'proxy_manager'):
             self.client.proxy_manager.penalty_fn = lambda e: 2
+        self.translated_locations, _ = asyncio.get_event_loop().run_until_complete(
+            asyncio.wait([self.translate_location(i) for i in self.filter.arrondissements])
+        )
+        self.translated_locations = [l.result() for l in self.translated_locations]
 
     def get_service_name(self) -> str:
         return self.__class__.__name__
+
+    async def translate_location(self, loc):
+        return loc
 
     def get_candidate_native_id(self, candidate):
         raise Exception("Not implemented")
