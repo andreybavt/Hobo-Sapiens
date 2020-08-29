@@ -68,5 +68,5 @@ class AvendreAlouer(AbstractService):
 if __name__ == '__main__':
     f = Filter(arrondissements=[75001, 75002, 75003, 75004, 75005, 75010, 75011, 75008, 75009], max_price=13000,
                min_area=25)
-    service = AvendreAlouer(f)
+    service = AvendreAlouer(f, False)
     asyncio.get_event_loop().run_until_complete(service.run())

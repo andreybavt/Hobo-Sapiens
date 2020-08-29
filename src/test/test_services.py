@@ -11,6 +11,7 @@ from services.figaro import Figaro
 from services.laforet import Laforet
 from services.leboncoin import LeBonCoin
 from services.logicimmo import LogicImmo
+from services.moteurimmo import MoteurImmo
 from services.orpi import Orpi
 from services.pap import Pap
 from services.seloger import Seloger
@@ -55,6 +56,9 @@ def test_seloger():
 def test_laforet():
     smoke_test(Laforet)
 
+def test_moteurimmo():
+    smoke_test(MoteurImmo)
+
 
 from typing import Type
 
@@ -65,6 +69,7 @@ def smoke_test(service_class: Type[AbstractService]):
 
     asyncio.get_event_loop().run_until_complete(service.main_run())
     assert len(service.notifications) > 0
+    print(list(service.notifications)[0].id)
     has_area = False
     has_id = False
     has_location = False

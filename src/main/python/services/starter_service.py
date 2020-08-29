@@ -8,8 +8,9 @@ from services.abstract_service import AbstractService
 class StarterService(AbstractService):
 
     def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, *kwargs)
         with self.METRICS_INIT_TIME.time():
-            super().__init__(*args, *kwargs)
+            pass
 
     def get_candidate_native_id(self, candidate) -> str:
         # candidate entity id extractor

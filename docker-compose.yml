@@ -7,8 +7,17 @@ services:
       context: .
     container_name: hobo-seloger-token
     restart: unless-stopped
-    ports:
-      - 8001:8001
+    expose:
+      - 8001
+
+  moteurimmotoken:
+    build:
+      dockerfile: moteurimmo-token.Dockerfile
+      context: .
+    container_name: hobo-moteurimmo-token
+    restart: unless-stopped
+    expose:
+      - 18081
 
   crawler:
     build:
@@ -20,17 +29,17 @@ services:
       - ~/.hobo-sapiens/listings:/root/.hobo-sapiens/listings
       - ~/.hobo-sapiens/image-hashes:/root/.hobo-sapiens/image-hashes
       - ./filter.json:/usr/src/app/filter.json
-
     depends_on:
       - selogertoken
+      - moteurimmotoken
     environment:
+      - HS_FIRST_RUN_SILENT
       - HS_TELEGRAM_BOT_TOKEN
       - HS_TELEGRAM_CHAT_ID
       - HS_SELOGER_TOKEN_HOST=selogertoken
+      - HS_MOTEURIMMO_TOKEN_HOST=moteurimmotoken
     expose:
       - 5000
-    ports:
-      - 5000:5000
 
   prometheus:
     image: prom/prometheus:latest
@@ -44,8 +53,6 @@ services:
       - '--storage.tsdb.path=/prometheus'
     expose:
       - 9090
-    ports:
-      - 9090:9090
 
   grafana:
     image: grafana/grafana:latest
@@ -54,19 +61,13 @@ services:
     depends_on:
       - prometheus
     ports:
-      - 3000:3000
+      - 0.0.0.0:13000:3000
     volumes:
       - ~/.hobo-sapiens/grafana:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning/
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
     environment:
-#      - GF_AUTH_DISABLE_LOGIN_FORM=true
-#      - GF_AUTH_ANONYMOUS_ENABLED=true
-#      - GF_AUTH_ANONYMOUS_ORG_NAME=Main Org.
-#      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-#      - GF_USERS_ALLOW_SIGN_UP=false
-
-      - GF_SECURITY_ADMIN_PASSWORD=admin #MYPASSWORT
+      - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SERVER_DOMAIN=myrul.com
       - GF_SMTP_ENABLED=true

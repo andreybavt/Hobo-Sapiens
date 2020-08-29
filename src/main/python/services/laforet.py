@@ -15,9 +15,6 @@ ANNOUNCES_PER_PAGE = 16
 
 class Laforet(AbstractService):
 
-    def get_service_name(self) -> str:
-        return "Laforet"
-
     def get_candidate_native_id(self, candidate):
         return candidate.get('immo_id')
 

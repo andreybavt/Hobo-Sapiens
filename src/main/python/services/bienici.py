@@ -21,9 +21,6 @@ class BienIci(AbstractService):
                     f.arrondissements]))
             self.filter_zones = [json.loads(i.result().body.decode())[0] for i in arr_responses[0]]
 
-    def get_service_name(self) -> str:
-        return "BienIci"
-
     def get_candidate_native_id(self, candidate):
         return candidate['id']
 

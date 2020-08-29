@@ -25,17 +25,17 @@ class ImageManager:
     async def get_image_hash(self, image_url):
         res = await self.client.fetch(HTTPRequest(method='GET', url=image_url), use_proxy_for_request=False)
         image = Image.open(io.BytesIO(res.body))
-        return image_url, str(imagehash.average_hash(image))
+        return res.body, str(imagehash.average_hash(image))
 
     def check_all(self, notification, urls):
         output = {}
         seen_in_messages = []
         loop = asyncio.get_event_loop()
         for url in urls:
-            _, img_hash = loop.run_until_complete(self.get_image_hash(url))
+            image, img_hash = loop.run_until_complete(self.get_image_hash(url))
             if img_hash not in self.image_hashes:
                 self.image_hashes[img_hash] = {"hash": img_hash, "notif": notification}
-                output[url] = self.image_hashes[img_hash]
+                output[url] = {"image": image, **self.image_hashes[img_hash]}
             else:
                 seen_in_messages.append(self.image_hashes[img_hash])
         return output, seen_in_messages

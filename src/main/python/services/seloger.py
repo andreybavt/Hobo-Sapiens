@@ -17,9 +17,6 @@ class Seloger(AbstractService):
         'user-agent': 'okhttp/4.2.2',
     }
 
-    def get_service_name(self) -> str:
-        return "Seloger"
-
     def get_candidate_native_id(self, pub):
         return pub.get('id')
 
