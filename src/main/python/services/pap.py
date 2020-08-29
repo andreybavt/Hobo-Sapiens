@@ -12,9 +12,6 @@ from services.abstract_service import AbstractService
 
 class Pap(AbstractService):
 
-    def get_service_name(self) -> str:
-        return "Pap"
-
     def get_candidate_native_id(self, candidate):
         return candidate['id']
 
@@ -65,6 +62,6 @@ if __name__ == '__main__':
     f = Filter(arrondissements=[75001, 75002, 75003, 75004],
                max_price=2000,
                min_area=25)
-    service = Pap(f, True)
+    service = Pap(f, False)
     res = asyncio.get_event_loop().run_until_complete(service.run())
     service.logger.info(res)

@@ -17,9 +17,6 @@ class LeBonCoin(AbstractService):
         with self.METRICS_INIT_TIME.time():
             self.fetch_size = 35
 
-    def get_service_name(self) -> str:
-        return "LeBonCoin"
-
     def get_candidate_native_id(self, candidate):
         return candidate['list_id']
 

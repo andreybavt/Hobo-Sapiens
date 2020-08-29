@@ -22,9 +22,6 @@ class Figaro(AbstractService):
         with self.METRICS_INIT_TIME.time():
             self.locations = self.search_locations()
 
-    def get_service_name(self) -> str:
-        return "Figaro"
-
     def get_candidate_native_id(self, cid) -> str:
         return cid
 

@@ -48,8 +48,9 @@ class AbstractService:
         )
         self.translated_locations = [l.result() for l in self.translated_locations]
 
-    def get_service_name(self) -> str:
-        return self.__class__.__name__
+    @classmethod
+    def get_service_name(cls) -> str:
+        return cls.__name__
 
     async def translate_location(self, loc):
         return loc

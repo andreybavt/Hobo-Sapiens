@@ -9,6 +9,13 @@ from crawler_utils.utils import read_prop
 from notification_sender import Notification
 from runner import Filter
 from services.abstract_service import AbstractService
+from services.avendre_alouer import AvendreAlouer
+from services.bienici import BienIci
+from services.figaro import Figaro
+from services.leboncoin import LeBonCoin
+from services.logicimmo import LogicImmo
+from services.pap import Pap
+from services.seloger import Seloger
 
 
 class MoteurImmo(AbstractService):
@@ -34,6 +41,32 @@ class MoteurImmo(AbstractService):
         with self.METRICS_INIT_TIME.labels(self.get_service_name()).time():
             asyncio.get_event_loop().run_until_complete(self.init_cookies())
         super().__init__(*args, *kwargs)
+
+    def get_service_prefixed_id(self, pub):
+        origin_mapping = {
+            1: AvendreAlouer, #ok
+            2: LeBonCoin, #ok
+            3: LogicImmo,
+            4: Pap, #ok
+            5: Seloger,
+            6: BienIci, #ok
+            7: Figaro, #ok
+            8: "ParuVendu",
+            9: "Lesiteimmo",
+            10: "AcheterLouer",
+            11: "Vivastreet",
+            12: "Kicherchekoi",
+            13: "EtreProprio",
+            14: "Immonot",
+            15: "ImmoRegion",
+            16: "OuestFrance",
+            17: "MaisonsEtAppartements"
+        }
+        origin = origin_mapping.get(pub['origin'])
+        if type(origin) == type:
+            return f"{origin.get_service_name()}__{pub['adId']}"
+        else:
+            return f"{self.get_service_name()}__{self.get_candidate_native_id(pub)}"
 
     def get_candidate_native_id(self, candidate) -> str:
         return candidate['_id']
@@ -82,6 +115,6 @@ class MoteurImmo(AbstractService):
 
 
 if __name__ == '__main__':
-    f = Filter(arrondissements=[75001, 75002, 75003], max_price=1300, min_area=25)
+    f = Filter(arrondissements=[75001, 75002, 75003, 75018], max_price=2300, min_area=25)
     service = MoteurImmo(f, False)
     asyncio.get_event_loop().run_until_complete(service.run())

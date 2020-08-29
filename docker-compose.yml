@@ -33,6 +33,7 @@ services:
       - selogertoken
       - moteurimmotoken
     environment:
+      - HS_FIRST_RUN_SILENT
       - HS_TELEGRAM_BOT_TOKEN
       - HS_TELEGRAM_CHAT_ID
       - HS_SELOGER_TOKEN_HOST=selogertoken
