@@ -37,7 +37,6 @@ def init_services():
     from services.logicimmo import LogicImmo
     from services.moteurimmo import MoteurImmo
     service_classes = [
-        MoteurImmo,
         Orpi,
         AvendreAlouer,
         BienIci,
@@ -48,6 +47,8 @@ def init_services():
         LogicImmo,
         Pap,
         Seloger,
+        MoteurImmo,
+
         # DummyService
     ]
     METRIC_NB_SERVICES.set(len(service_classes))
