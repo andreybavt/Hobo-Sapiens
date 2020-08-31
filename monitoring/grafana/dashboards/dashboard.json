@@ -95,7 +95,7 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 240
               }
             ]
           },
@@ -140,6 +140,85 @@
     },
     {
       "datasource": "Prometheus",
+      "description": "Number of listings fetched during last run",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [
+            {
+              "from": "0",
+              "id": 0,
+              "text": "NOK",
+              "to": "0",
+              "type": 1,
+              "value": "0"
+            },
+            {
+              "from": "1",
+              "id": 1,
+              "text": "OK",
+              "to": "999999999999999999",
+              "type": 2
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 15
+      },
+      "id": 14,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.1.5",
+      "targets": [
+        {
+          "expr": "service_listing_count",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Crawler status",
+      "type": "stat"
+    },
+    {
+      "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -166,7 +245,7 @@
       "gridPos": {
         "h": 8,
         "w": 3,
-        "x": 10,
+        "x": 12,
         "y": 15
       },
       "id": 12,
@@ -287,5 +366,5 @@
   "timezone": "",
   "title": "Hobo Sapiens",
   "uid": "f0AJPPNMk",
-  "version": 2
+  "version": 3
 }
