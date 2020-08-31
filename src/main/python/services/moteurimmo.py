@@ -2,10 +2,11 @@ import asyncio
 import json
 import math
 import os
+from http.cookies import SimpleCookie
 
-import aiohttp
+from tornado.httpclient import HTTPRequest
 
-from crawler_utils.utils import read_prop
+from crawler_utils.utils import read_prop, nofail_async
 from notification_sender import Notification
 from runner import Filter
 from services.abstract_service import AbstractService
@@ -19,6 +20,7 @@ from services.seloger import Seloger
 
 
 class MoteurImmo(AbstractService):
+    cookies = {}
     headers = {
         'Connection': 'keep-alive',
         'Pragma': 'no-cache',
@@ -35,12 +37,6 @@ class MoteurImmo(AbstractService):
 
     moteurimmo_token_host = os.environ.get('HS_MOTEURIMMO_TOKEN_HOST', 'localhost')
     moteurimmo_token_port = os.environ.get('HS_MOTEURIMMO_TOKEN_PORT', '18081')
-
-    def __init__(self, *args, **kwargs) -> None:
-        self.session = aiohttp.ClientSession()  # Maybe migrate to aiohttp?
-        with self.METRICS_INIT_TIME.labels(self.get_service_name()).time():
-            asyncio.get_event_loop().run_until_complete(self.init_cookies())
-        super().__init__(*args, *kwargs)
 
     def get_service_prefixed_id(self, pub):
         origin_mapping = {
@@ -81,10 +77,12 @@ class MoteurImmo(AbstractService):
                             pics_urls=[c.get('pictureUrl')])
 
     async def run(self):
+        await self.init_cookies()
         total_results = await self.run_for_page()
         for page in range(2, math.ceil(total_results / self.per_page) + 1):
             await self.run_for_page(page)
 
+    @nofail_async(retries=5, failback_result=[])
     async def run_for_page(self, page=1):
         data = {"types": [2], "categories": [1, 2], "sellerTypes": [1, 2], "sortBy": "publicationDate-desc",
                 "priceMin": "", "priceMax": self.filter.max_price, "pricePerSquareMeterMin": "",
@@ -96,25 +94,41 @@ class MoteurImmo(AbstractService):
                 "floorMin": "", "floorMax": "", "buildingFloorsMin": "", "buildingFloorsMax": "",
                 "extra": {"isFurnished": True} if self.filter.furnished else {},
                 "keywords": [], "keywordsOperator": 1, "maxLength": self.per_page, "page": page}
-        resp = await self.session.post(f"http://{self.moteurimmo_token_host}:{self.moteurimmo_token_port}", data=json.dumps(data))
-        data['token'] = await resp.text()
-        resp = await self.session.post("https://moteurimmo.fr/search/ads", json=data)
-        resp = await resp.json()
+
+        resp = await self.client.fetch(
+            HTTPRequest(method='POST', url=f"http://{self.moteurimmo_token_host}:{self.moteurimmo_token_port}",
+                        body=json.dumps(data)), use_proxy_for_request=False)
+        data['token'] = resp.body.decode()
+        resp = await self.client.fetch(
+            HTTPRequest(method="POST", url="https://moteurimmo.fr/search/ads",
+                        body=json.dumps(data, ensure_ascii=False), headers=self.headers), cookies=self.cookies)
+        resp = resp.json()
         for c in resp['ads']:
             await self.push_candidate(c)
         return resp['count']
 
     async def translate_location(self, loc):
-        res = await self.session.get(f'https://moteurimmo.fr/search/location?value={loc}')
-        res = await res.json()
+        res = await self.client.fetch(
+            HTTPRequest(url=f'https://moteurimmo.fr/search/location?value={loc}', method='GET', headers=self.headers),
+            cookies=self.cookies)
+        res = res.json()
         return [i['value'] for i in res if 'postalCode' in i['value']][0]
 
+    async def post_client_init(self):
+        await self.init_cookies()
+
     async def init_cookies(self):
-        self.session.cookie_jar.clear()
-        await self.session.post("https://moteurimmo.fr/user", headers=self.headers)
+        if 'Cookie' in self.headers:
+            self.headers.pop('Cookie')
+        res = await self.client.patient_fetch(HTTPRequest(url='https://moteurimmo.fr/user', headers=self.headers),
+                                              ok_statuses=[401])
+        if 'Set-Cookie' in res.headers:
+            cookie = SimpleCookie()
+            cookie.load(dict(res.headers)['Set-Cookie'])
+            self.cookies = {key: value.value for key, value in cookie.items()}
 
 
 if __name__ == '__main__':
-    f = Filter(arrondissements=[75001, 75002, 75003, 75018], max_price=2300, min_area=25)
-    service = MoteurImmo(f, False)
+    f = Filter(arrondissements=[75001], max_price=2300, min_area=25)
+    service = MoteurImmo(f, True)
     asyncio.get_event_loop().run_until_complete(service.run())

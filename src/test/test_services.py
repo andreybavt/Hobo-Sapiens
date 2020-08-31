@@ -57,15 +57,15 @@ def test_laforet():
     smoke_test(Laforet)
 
 def test_moteurimmo():
-    smoke_test(MoteurImmo)
+    smoke_test(MoteurImmo, True)
 
 
 from typing import Type
 
 
-def smoke_test(service_class: Type[AbstractService]):
+def smoke_test(service_class: Type[AbstractService], with_proxy=False):
     filter = Filter(arrondissements=[75018], max_price=1500, min_area=27)
-    service = service_class(filter, False, Path(tempfile.mkdtemp(prefix='hobo-sapiens-listings')))
+    service = service_class(filter, with_proxy, Path(tempfile.mkdtemp(prefix='hobo-sapiens-listings')))
 
     asyncio.get_event_loop().run_until_complete(service.main_run())
     assert len(service.notifications) > 0

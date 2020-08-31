@@ -1,3 +1,6 @@
 [submodule "src/main/python/crawler_utils"]
 	path = src/main/python/crawler_utils
 	url = https://github.com/andreybavt/crawler_utils.git
+[submodule "torproxy"]
+	path = torproxy
+	url = https://github.com/andreybavt/torproxy.git

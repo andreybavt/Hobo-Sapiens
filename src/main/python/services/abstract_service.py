@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 import diskcache as dc
-from prometheus_client import Counter, Histogram
+from prometheus_client import Counter, Histogram, Gauge
 
 logging.basicConfig(stream=sys.stdout, level=os.environ.get('LOGLEVEL', 'INFO').upper(),
                     format='%(asctime)s %(levelname)s %(name)s: %(message)s')
@@ -21,7 +21,7 @@ class AbstractService:
     METRICS_RUN_COUNT = Counter('service_runs', 'Number of service runs', ['service'])
     METRICS_INIT_TIME = Histogram('service_init_time_sec', 'Time to initialize a service', ['service'])
     METRICS_RUN_TIME = Histogram('service_run_time_sec', 'Time to run a service', ['service'])
-    METRICS_NOTIFICATIONS_COUNT = Counter('service_listing_count', 'Number of notifications found', ['service'])
+    METRICS_LISTING_COUNT = Gauge('service_listing_count', 'Number of listings found', ['service'])
 
     def __init__(self, f: Filter, enable_proxy=None,
                  storage_path=Path.home().joinpath('.hobo-sapiens', 'listings')) -> None:
@@ -29,7 +29,7 @@ class AbstractService:
         self.METRICS_RUN_COUNT = self.METRICS_RUN_COUNT.labels(self.get_service_name())
         self.METRICS_INIT_TIME = self.METRICS_INIT_TIME.labels(self.get_service_name())
         self.METRICS_RUN_TIME = self.METRICS_RUN_TIME.labels(self.get_service_name())
-        self.METRICS_NOTIFICATIONS_COUNT = self.METRICS_NOTIFICATIONS_COUNT.labels(self.get_service_name())
+        self.METRICS_LISTING_COUNT = self.METRICS_LISTING_COUNT.labels(self.get_service_name())
 
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info("INITIALIZING")
@@ -39,11 +39,13 @@ class AbstractService:
             "connect_timeout": 8,
             "request_timeout": 40
         }
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self.post_client_init())
         self.seen_ids = dc.Cache(str(storage_path))
         self.notifications: Set[Notification] = set()
         if hasattr(self.client, 'proxy_manager'):
             self.client.proxy_manager.penalty_fn = lambda e: 2
-        self.translated_locations, _ = asyncio.get_event_loop().run_until_complete(
+        self.translated_locations, _ = loop.run_until_complete(
             asyncio.wait([self.translate_location(i) for i in self.filter.arrondissements])
         )
         self.translated_locations = [l.result() for l in self.translated_locations]
@@ -68,6 +70,7 @@ class AbstractService:
         return f"{self.get_service_name()}__{self.get_candidate_native_id(pub)}"
 
     async def push_candidate(self, candidate):
+        self.METRICS_LISTING_COUNT.inc()
         prefixed_id = self.get_service_prefixed_id(candidate)
         if prefixed_id in self.seen_ids:
             return False
@@ -92,8 +95,11 @@ class AbstractService:
         self.logger.info(f"Running")
         self.notifications = set()
         with self.METRICS_RUN_TIME.time():
+            self.METRICS_LISTING_COUNT.set(0)
             await self.run()
 
-        self.METRICS_NOTIFICATIONS_COUNT.inc(len(self.notifications))
         self.METRICS_RUN_COUNT.inc()
         self.logger.info(f"Ended, number of notifications: {len(self.notifications)}")
+
+    async def post_client_init(self):
+        pass

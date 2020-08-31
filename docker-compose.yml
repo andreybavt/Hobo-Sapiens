@@ -7,6 +7,8 @@ services:
       context: .
     container_name: hobo-seloger-token
     restart: unless-stopped
+    ports:
+    - 8001:8001
     expose:
       - 8001
 
@@ -16,8 +18,19 @@ services:
       context: .
     container_name: hobo-moteurimmo-token
     restart: unless-stopped
+    ports:
+      - 18081:18081
     expose:
       - 18081
+
+  torproxy:
+    build:
+      context: torproxy
+    container_name: torproxy
+    restart: unless-stopped
+    expose:
+      - 9050
+      - 9052
 
   crawler:
     build:
@@ -32,10 +45,12 @@ services:
     depends_on:
       - selogertoken
       - moteurimmotoken
+      - torproxy
     environment:
       - HS_FIRST_RUN_SILENT
       - HS_TELEGRAM_BOT_TOKEN
       - HS_TELEGRAM_CHAT_ID
+      - TOR_PROXY_HOST=torproxy
       - HS_SELOGER_TOKEN_HOST=selogertoken
       - HS_MOTEURIMMO_TOKEN_HOST=moteurimmotoken
     expose:

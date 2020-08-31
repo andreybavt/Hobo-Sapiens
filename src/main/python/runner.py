@@ -37,22 +37,22 @@ def init_services():
     from services.logicimmo import LogicImmo
     from services.moteurimmo import MoteurImmo
     service_classes = [
-        Orpi,
-        AvendreAlouer,
-        BienIci,
-        Century21,
-        Figaro,
-        Laforet,
-        LeBonCoin,
-        LogicImmo,
-        Pap,
-        Seloger,
-        MoteurImmo,
+        Orpi(current_filter),
+        AvendreAlouer(current_filter),
+        BienIci(current_filter),
+        Century21(current_filter),
+        Figaro(current_filter),
+        Laforet(current_filter),
+        LeBonCoin(current_filter),
+        LogicImmo(current_filter),
+        Pap(current_filter),
+        Seloger(current_filter),
+        MoteurImmo(current_filter, True),
 
         # DummyService
     ]
     METRIC_NB_SERVICES.set(len(service_classes))
-    return [s(current_filter, False) for s in service_classes]
+    return service_classes
 
 
 def send_notifications(service, is_first_run):
