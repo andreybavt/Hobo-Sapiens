@@ -37,16 +37,16 @@ def init_services():
     from services.logicimmo import LogicImmo
     from services.moteurimmo import MoteurImmo
     service_classes = [
-        Orpi(current_filter),
-        AvendreAlouer(current_filter),
-        BienIci(current_filter),
-        Century21(current_filter),
-        Figaro(current_filter),
-        Laforet(current_filter),
-        LeBonCoin(current_filter),
-        LogicImmo(current_filter),
-        Pap(current_filter),
-        Seloger(current_filter),
+        Orpi(current_filter, False),
+        AvendreAlouer(current_filter, False),
+        BienIci(current_filter, False),
+        Century21(current_filter, False),
+        Figaro(current_filter, False),
+        Laforet(current_filter, False),
+        LeBonCoin(current_filter, False),
+        LogicImmo(current_filter, False),
+        Pap(current_filter, False),
+        Seloger(current_filter, False),
         MoteurImmo(current_filter, True),
 
         # DummyService
