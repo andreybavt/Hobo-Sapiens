@@ -205,7 +205,7 @@
       "pluginVersion": "7.1.5",
       "targets": [
         {
-          "expr": "service_listing_count",
+          "expr": "sum_over_time(service_listing_count[1h])",
           "instant": true,
           "interval": "",
           "legendFormat": "{{service}}",
@@ -232,10 +232,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -346,7 +342,7 @@
     "list": []
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {
@@ -366,5 +362,5 @@
   "timezone": "",
   "title": "Hobo Sapiens",
   "uid": "f0AJPPNMk",
-  "version": 3
+  "version": 7
 }
