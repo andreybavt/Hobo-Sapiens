@@ -44,7 +44,7 @@ class NotificationSender:
 
     def send_to_chat(self, notif: Notification):
         try:
-            price_per_m = notif.price / notif.area
+            price_per_m = int(notif.price / notif.area)
         except Exception:
             price_per_m = None
 
