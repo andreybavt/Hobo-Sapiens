@@ -48,7 +48,7 @@ class NotificationSender:
         except Exception:
             price_per_m = None
 
-        desc = f'{notif.id}\nPrice: {notif.price} ({price_per_m}/m2)\nArea: {notif.area}\nWhere: {notif.location}\nURL: {notif.url}\n{notif.description}'
+        desc = f'{notif.id}\nPrice: {notif.price} ({price_per_m}/m2)\nArea: {notif.area}\nWhere: {notif.location}\nURL: {notif.url}\n\n{notif.description}'
         desc = desc[:4090]
         self.METRICS_NOTIFICATION_COUNT.labels(notif.source).inc()
         chat_id = environ.get('HS_TELEGRAM_CHAT_ID')
