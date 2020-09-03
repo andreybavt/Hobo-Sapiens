@@ -25,10 +25,12 @@ class Pap(AbstractService):
             return None
         return Notification(
             price=candidate['prix'],
-            location=candidate_location,
+            location=str(candidate_location),
             area=candidate['surface'],
             url=candidate['_links']['desktop']['href'],
-            pics_urls=[i['_links']['self']['href'] for i in read_prop(det, '_embedded', 'photo')]
+            pics_urls=[i['_links']['self']['href'] for i in read_prop(det, '_embedded', 'photo')],
+            description=det.get('texte'),
+            rooms=det.get('nb_pieces')
         )
 
     def arr_to_paparr(self, arr):

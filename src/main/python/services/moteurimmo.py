@@ -74,7 +74,10 @@ class MoteurImmo(AbstractService):
                             location=read_prop(c, 'location', 'postalCode'),
                             area=c.get('surface'),
                             url=c.get('url'),
-                            pics_urls=[c.get('pictureUrl')])
+                            pics_urls=[c.get('pictureUrl')],
+                            description=c.get('description'),
+                            rooms=c.get('rooms'),
+                            floor=c.get('floor'))
 
     async def run(self):
         await self.init_cookies()

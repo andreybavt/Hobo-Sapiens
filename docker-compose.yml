@@ -28,6 +28,9 @@ services:
       context: torproxy
     container_name: torproxy
     restart: unless-stopped
+    ports:
+      - 9050:9050
+      - 9052:9052
     expose:
       - 9050
       - 9052

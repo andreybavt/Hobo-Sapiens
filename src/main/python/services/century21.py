@@ -21,17 +21,31 @@ class Century21(AbstractService):
         resp = await self.client.patient_fetch(HTTPRequest(method="GET", url=url))
         soup = BeautifulSoup(resp.body.decode(), 'lxml')
 
+        rooms_el = [i for i in soup.select('#ficheDetail .titreDetail') if 'Nombre de pièces' in i.text]
+
         return Notification(
             price=soup.select_one('.tarif b').text.strip(),
-            area=re.search('(\d|,)*? m²', candidate.select('.tw-text-sm')[1].text.strip()).group(0),
+            area=float(
+                re.search('((\d|,)*?) m²', candidate.select('.tw-text-sm')[1].text.strip()).group(1).replace(",", ".")),
             location=candidate.select('.tw-text-sm')[0].text.strip(),
             url=f"https://www.century21.fr{candidate.select_one('a')['href']}",
-            pics_urls=[f"https://www.century21.fr{i['href']}" for i in soup.select('.zone-galerie a[href]')]
+            pics_urls=[f"https://www.century21.fr{i['href']}" for i in soup.select('.zone-galerie a[href]')],
+            description=soup.select_one('.fondAnnonce .tw-text-justify').text.strip(),
+            rooms=self.get_nb_rooms(rooms_el, soup)
         )
+
+    def get_nb_rooms(self, rooms_el, soup):
+        try:
+            if len(rooms_el):
+                nb_rooms_str = [i for i in soup.select('#ficheDetail .box li') if 'Nombre de pièces' in i.text][
+                    0].text.strip()
+                return int(re.search('Nombre de pièces :(\d+) ', nb_rooms_str).group(1))
+        except Exception:
+            pass
 
     async def run(self):
         candidates, first_page = await self.get_page()
-        nb_els = int(re.findall('\d+',first_page.select_one('#bloc_liste_biens .titreSeparation').text)[0])
+        nb_els = int(re.findall('\d+', first_page.select_one('#bloc_liste_biens .titreSeparation').text)[0])
         page_cnt = math.ceil(nb_els / 30)
         if page_cnt > 1:
             kk = [z for i in range(2, page_cnt + 1) for z in (await self.get_page(i))[0]]

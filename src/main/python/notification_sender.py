@@ -2,7 +2,9 @@ import logging
 import traceback
 from io import BytesIO
 from os import environ
+from typing import List
 
+from attr import dataclass
 from prometheus_client.metrics import Counter, Histogram
 from telegram import InputMediaPhoto
 from telegram.ext import Updater
@@ -10,18 +12,18 @@ from telegram.ext import Updater
 from crawler_utils.utils import chunks, nofail
 from image_manager import ImageManager
 
-
+@dataclass(eq=False)
 class Notification(object):
-
-    def __init__(self, price=None, location=None, area=None, url=None, pics_urls=None, id=None, source=None, ) -> None:
-        super().__init__()
-        self.id = id
-        self.source = source
-        self.price = price
-        self.location = location
-        self.area = area
-        self.url = url
-        self.pics_urls = pics_urls
+    price: float
+    location: str
+    area: float
+    url: str
+    pics_urls: List[str]
+    floor: int = None
+    description: str = None
+    rooms: int = None
+    id: str = None
+    source: str = None
 
     def __hash__(self) -> int:
         return hash(self.id)
@@ -41,7 +43,13 @@ class NotificationSender:
                                request_kwargs={"connect_timeout": 60., "read_timeout": 60.}, use_context=True)
 
     def send_to_chat(self, notif: Notification):
-        desc = f'ID: {notif.id}\nPrice: {notif.price}\nArea: {notif.area}\nWhere: {notif.location}\nURL: {notif.url} '
+        try:
+            price_per_m = notif.price / notif.area
+        except Exception:
+            price_per_m = None
+
+        desc = f'{notif.id}\nPrice: {notif.price} ({price_per_m}/m2)\nArea: {notif.area}\nWhere: {notif.location}\nURL: {notif.url}\n{notif.description}'
+        desc = desc[:4090]
         self.METRICS_NOTIFICATION_COUNT.labels(notif.source).inc()
         chat_id = environ.get('HS_TELEGRAM_CHAT_ID')
         reference_message = None

@@ -1,11 +1,10 @@
 import asyncio
-import math
-
 import json
-import logging
+import math
 from datetime import datetime, timedelta
-from tornado.httpclient import HTTPRequest
 from urllib.parse import urlencode
+
+from tornado.httpclient import HTTPRequest
 
 from crawler_utils.utils import get_tasks_results, read_prop
 from notification_sender import Notification
@@ -32,11 +31,15 @@ class AvendreAlouer(AbstractService):
 
     async def candidate_to_notification(self, c) -> Notification:
         return Notification(
+            description=c.get('description'),
+            rooms=c.get('roomsCount'),
+            floor=c.get('floorNumber'),
             price=c['price'],
             location=read_prop(c, 'viewData', 'localityName'),
             area=c['surface'],
             url=f"https://www.avendrealouer.fr/{c['realms']['aval']['url']}",
-            pics_urls=[i['url'] for i in c['medias']['photos']]) if read_prop(c, 'medias', 'photos') else []
+            pics_urls=([i['url'] for i in c['medias']['photos']] if read_prop(c, 'medias', 'photos') else [])
+        )
 
     async def run(self):
         first_page = await self.fetch_page()

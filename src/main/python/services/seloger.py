@@ -21,12 +21,19 @@ class Seloger(AbstractService):
         return pub.get('id')
 
     async def candidate_to_notification(self, c) -> Notification:
+        res = await self.client.patient_fetch(HTTPRequest(method='GET',
+                                                    headers=self.headers,
+                                                    url=f'https://api-seloger.svc.groupe-seloger.com/api/v1/listings/{c["id"]}'))
+        res = res.json()
         return Notification(
             price=c.get('price'),
             location=c.get('zipCode'),
             area=c.get('livingArea'),
             url=c.get('permalink'),
-            pics_urls=c.get('photos'))
+            pics_urls=c.get('photos'),
+            description=res.get('description'),
+            rooms=res.get('rooms')
+        )
 
     def arr_to_searr(self, arr):
         return 750100 + arr - 75000

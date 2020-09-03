@@ -27,12 +27,20 @@ class Orpi(AbstractService):
         return candidate['id']
 
     async def candidate_to_notification(self, c) -> Notification:
+        res = await self.client.patient_fetch(HTTPRequest(method='GET',
+                                                    url=f'https://www.orpi.com/api/estate/{c["reference"]}',
+                                                    headers=self.headers))
+
+        res = res.json()
         return Notification(
             price=c['price'],
             area=c['surface'],
             location=c['locationDescription'],
             url=f"https://www.orpi.com/annonce-location-{c['slug']}",
-            pics_urls=c.get('images')
+            pics_urls=c.get('images'),
+            description=res.get('longAd'),
+            rooms=res.get('nbRooms'),
+            floor=res.get('storyLocation'),
         )
 
     async def run(self):

@@ -35,7 +35,9 @@ class LogicImmo(AbstractService):
             area=c['properties']['area'],
             url=c['info']['link'],
             pics_urls=[i.replace('width=[WIDTH]&height=[HEIGHT]&scale=[SCALE]', 'width=800&height=600&scale=1') for i in
-                       c['pictures']]
+                       c['pictures']],
+            description=read_prop(c,'info','text').strip(),
+            rooms=read_prop(c,'properties','rooms')
         )
 
     async def run(self):

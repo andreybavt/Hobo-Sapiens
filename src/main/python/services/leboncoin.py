@@ -24,9 +24,10 @@ class LeBonCoin(AbstractService):
         return Notification(
             price=candidate.get('price')[0],
             location=read_prop(candidate, 'location', 'zipcode'),
-            area={e['key']: e['value'] for e in candidate['attributes']}.get('square'),
+            area=float({e['key']: e['value'] for e in candidate['attributes']}.get('square')),
             url=candidate.get('url'),
-            pics_urls=read_prop(candidate, 'images', 'urls_large')
+            pics_urls=read_prop(candidate, 'images', 'urls_large'),
+            description=candidate.get('body').strip()
         )
 
     async def run(self):

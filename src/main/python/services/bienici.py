@@ -29,7 +29,10 @@ class BienIci(AbstractService):
                             location=candidate['postalCode'],
                             area=candidate['surfaceArea'],
                             url="https://www.bienici.com/annonce/location/" + self.get_candidate_native_id(candidate),
-                            pics_urls=[p['url'] for p in candidate['photos']])
+                            pics_urls=[p['url'] for p in candidate['photos']],
+                            description=candidate.get('description'),
+                            rooms=candidate.get('roomsQuantity')
+                            )
 
     async def run(self):
         zones = ','.join([i for z in self.filter_zones for i in z['zoneIds']])

@@ -77,6 +77,9 @@ def smoke_test(service_class: Type[AbstractService], with_proxy=False):
     has_price = False
     has_source = False
     has_url = False
+    has_description = False
+    has_rooms = False
+    has_floor = False
 
     for n in service.notifications:
         has_area = has_area or (n.area is not None)
@@ -86,6 +89,9 @@ def smoke_test(service_class: Type[AbstractService], with_proxy=False):
         has_price = has_price or (n.price is not None)
         has_source = has_source or (n.source is not None)
         has_url = has_url or (n.url is not None)
+        has_description = has_description or (n.description is not None)
+        has_rooms = has_rooms or (n.rooms is not None)
+        has_floor = has_floor or (n.floor is not None)
 
     assert has_area
     assert has_id
@@ -94,3 +100,6 @@ def smoke_test(service_class: Type[AbstractService], with_proxy=False):
     assert has_price
     assert has_source
     assert has_url
+    assert has_description
+    # assert has_rooms
+    # assert has_floor

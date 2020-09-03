@@ -38,7 +38,10 @@ class Figaro(AbstractService):
                             location=info.select_one('localisation postalcode').text,
                             area=info.select_one('characteristics surface').text,
                             url=url,
-                            pics_urls=[i['url'].replace('img/l', 'img/xxl') for i in info.select('photos photo')])
+                            pics_urls=[i['url'].replace('img/l', 'img/xxl') for i in info.select('photos photo')],
+                            description=info.select_one('description').text.strip(),
+                            rooms=int(info.select_one('nbrooms').text),
+                            floor=info.select_one('floor').text)
 
     async def run(self):
         for page in range(1, 50):

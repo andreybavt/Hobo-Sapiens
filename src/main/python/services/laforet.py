@@ -1,5 +1,4 @@
 import asyncio
-import logging
 import math
 from urllib.parse import urlencode
 
@@ -19,12 +18,18 @@ class Laforet(AbstractService):
         return candidate.get('immo_id')
 
     async def candidate_to_notification(self, c) -> Notification:
+        main_content = await self.client.patient_fetch(HTTPRequest(method='GET',
+                                                                   url=read_prop(c, 'links', 'self')))
+        main_content = main_content.json()
         return Notification(
             area=read_prop(c, 'surface'),
             location=read_prop(c, 'address', 'postcode'),
             price=read_prop(c, 'price'),
             url=read_prop(c, 'links', 'self'),
-            pics_urls=read_prop(c, 'photos')
+            pics_urls=read_prop(c, 'photos'),
+            description=main_content.get('description'),
+            rooms=main_content.get('rooms'),
+            floor=main_content.get('floor'),
         )
 
     async def run(self):
@@ -60,5 +65,5 @@ class Laforet(AbstractService):
 
 
 if __name__ == '__main__':
-    laforet = Laforet(Filter(arrondissements=[75018], max_price=2000, min_area=27))
+    laforet = Laforet(Filter(arrondissements=[75018], max_price=2000, min_area=27), False)
     asyncio.get_event_loop().run_until_complete(laforet.run())
