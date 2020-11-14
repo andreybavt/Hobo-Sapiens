@@ -68,8 +68,8 @@ def smoke_test(service_class: Type[AbstractService], with_proxy=False):
     service = service_class(filter, with_proxy, Path(tempfile.mkdtemp(prefix='hobo-sapiens-listings')))
 
     asyncio.get_event_loop().run_until_complete(service.main_run())
+    print(f"[{service_class.__name__}] : {len(service.notifications)} notifications")
     assert len(service.notifications) > 0
-    print(list(service.notifications)[0].id)
     has_area = False
     has_id = False
     has_location = False

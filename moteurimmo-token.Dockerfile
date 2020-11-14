@@ -3,7 +3,8 @@ EXPOSE 18081
 
 WORKDIR /usr/src/app
 
-RUN npm init -y && npm install object-hash
+COPY src/main/javascript/moteurimmo/package.json .
 COPY src/main/javascript/moteurimmo/tokenserver.js .
+RUN npm install
 
 CMD ["node", "tokenserver.js"]

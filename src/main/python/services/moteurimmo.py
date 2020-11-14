@@ -2,10 +2,12 @@ import asyncio
 import json
 import math
 import os
+import re
 from http.cookies import SimpleCookie
 
 from tornado.httpclient import HTTPRequest
 
+from crawler_utils.async_proxy import AsyncProxyClient
 from crawler_utils.utils import read_prop, nofail_async
 from notification_sender import Notification
 from runner import Filter
@@ -19,7 +21,29 @@ from services.pap import Pap
 from services.seloger import Seloger
 
 
+class MoteurImmoUtilsServer:
+    moteurimmo_token_host = os.environ.get('HS_MOTEURIMMO_TOKEN_HOST', 'localhost')
+    moteurimmo_token_port = os.environ.get('HS_MOTEURIMMO_TOKEN_PORT', '18081')
+    client = AsyncProxyClient(False)
+
+    async def _send(self, method, data):
+        resp = await self.client.fetch(
+            HTTPRequest(method='POST', url=f"http://{self.moteurimmo_token_host}:{self.moteurimmo_token_port}/{method}",
+                        body=json.dumps(data),
+                        headers={'Content-Type': 'application/json'}),
+            use_proxy_for_request=False)
+        return resp.body.decode()
+
+    async def get_token(self, data):
+        return await self._send("token", data)
+
+    async def decrypt(self, data):
+        return await self._send("decrypt", data)
+
+
 class MoteurImmo(AbstractService):
+    utils_server = MoteurImmoUtilsServer()
+    cypher_key = None
     cookies = {}
     headers = {
         'Connection': 'keep-alive',
@@ -34,9 +58,6 @@ class MoteurImmo(AbstractService):
         'Referer': 'https://moteurimmo.fr/',
     }
     per_page = 20
-
-    moteurimmo_token_host = os.environ.get('HS_MOTEURIMMO_TOKEN_HOST', 'localhost')
-    moteurimmo_token_port = os.environ.get('HS_MOTEURIMMO_TOKEN_PORT', '18081')
 
     def get_service_prefixed_id(self, pub):
         origin_mapping = {
@@ -80,35 +101,46 @@ class MoteurImmo(AbstractService):
                             floor=c.get('floor'))
 
     async def run(self):
-        await self.init_cookies()
+        await self.init_cookies_and_cypher_key()
         total_results = await self.run_for_page()
         for page in range(2, math.ceil(total_results / self.per_page) + 1):
             await self.run_for_page(page)
 
-    @nofail_async(retries=5, failback_result=[])
-    async def run_for_page(self, page=1):
-        data = {"types": [2], "categories": [1, 2], "sellerTypes": [1, 2], "sortBy": "publicationDate-desc",
+    async def submit_request(self, count_only, page):
+
+        data = {"types": [2], "categories": [1, 2], "sellerTypes": [1, 2], "sortBy": "creationDate-desc",
                 "priceMin": "", "priceMax": self.filter.max_price, "pricePerSquareMeterMin": "",
                 "pricePerSquareMeterMax": "",
-                "surfaceMin": self.filter.min_area, "surfaceMax": "", "landSurfaceMin": "", "landSurfaceMax": "",
+                "surfaceMin": self.filter.min_area, "surfaceMax": "", "landSurfaceMin": "",
+                "landSurfaceMax": "",
                 "roomsMin": "",
                 "roomsMax": "", "bedroomsMin": "", "bedroomsMax": "", "locations": self.translated_locations,
                 "radius": "", "constructionYearMin": "", "constructionYearMax": "",
                 "floorMin": "", "floorMax": "", "buildingFloorsMin": "", "buildingFloorsMax": "",
-                "extra": {"isFurnished": True} if self.filter.furnished else {},
+                "options": ["1"] if self.filter.furnished else [],
+                "encryption": True,
+                "countOnly": count_only,
                 "keywords": [], "keywordsOperator": 1, "maxLength": self.per_page, "page": page}
 
-        resp = await self.client.fetch(
-            HTTPRequest(method='POST', url=f"http://{self.moteurimmo_token_host}:{self.moteurimmo_token_port}",
-                        body=json.dumps(data)), use_proxy_for_request=False)
-        data['token'] = resp.body.decode()
+        data['token'] = await self.utils_server.get_token(data)
+
         resp = await self.client.fetch(
             HTTPRequest(method="POST", url="https://moteurimmo.fr/search/ads",
                         body=json.dumps(data, ensure_ascii=False), headers=self.headers), cookies=self.cookies)
-        resp = resp.json()
-        for c in resp['ads']:
+        return resp.json()
+
+    @nofail_async(retries=5, failback_result=[])
+    async def run_for_page(self, page=1):
+
+        count_resp = await self.submit_request(True, page)
+
+        data_resp = await self.submit_request(False, page)
+        data_resp = await self.utils_server.decrypt({"key": self.cypher_key, "req": data_resp['ads']})
+        data_resp = json.loads(data_resp)
+
+        for c in data_resp:
             await self.push_candidate(c)
-        return resp['count']
+        return count_resp['count']
 
     async def translate_location(self, loc):
         res = await self.client.fetch(
@@ -118,18 +150,24 @@ class MoteurImmo(AbstractService):
         return [i['value'] for i in res if 'postalCode' in i['value']][0]
 
     async def post_client_init(self):
-        await self.init_cookies()
+        await self.init_cookies_and_cypher_key()
 
-    async def init_cookies(self):
+    async def init_cookies_and_cypher_key(self):
         if 'Cookie' in self.headers:
             self.headers.pop('Cookie')
-        res = await self.client.patient_fetch(HTTPRequest(url='https://moteurimmo.fr/user', headers=self.headers),
+        res = await self.client.patient_fetch(HTTPRequest(url='https://moteurimmo.fr', headers=self.headers),
                                               ok_statuses=[401])
+        main_js = re.findall(r"main.{1,20}js", res.body.decode())[0]
+
         if 'Set-Cookie' in res.headers:
             cookie = SimpleCookie()
             cookie.load(dict(res.headers)['Set-Cookie'])
             self.cookies = {key: value.value for key, value in cookie.items()}
 
+        res = await self.client.patient_fetch(
+            HTTPRequest(url=f'https://moteurimmo.fr/static/js/{main_js}', headers=self.headers))
+
+        self.cypher_key = re.findall(r"aes-256-cbc.*?([A-Z0-9]{32})", res.body.decode())[0]
 
 if __name__ == '__main__':
     f = Filter(arrondissements=[75001], max_price=2300, min_area=25)
