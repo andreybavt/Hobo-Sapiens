@@ -8,3 +8,4 @@ env
 target
 build
 .gradle
+env
