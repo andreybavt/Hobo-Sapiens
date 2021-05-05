@@ -17,7 +17,7 @@ numpy==1.19.1
 packaging==20.4
 Pillow
 pluggy==0.13.1
-py==1.9.0
+py==1.10.0
 pycparser==2.20
 pycurl==7.43.0.5
 pyparsing==2.4.7
