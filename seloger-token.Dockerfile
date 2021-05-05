@@ -1,4 +1,4 @@
-FROM openjdk:8-alpine
+FROM openjdk:15-alpine
 EXPOSE 8001
 
 WORKDIR /usr/src/app

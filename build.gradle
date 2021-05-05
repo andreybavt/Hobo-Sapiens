@@ -18,6 +18,11 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'io.jsonwebtoken:jjwt:0.7.0'
+    compile 'io.jsonwebtoken:jjwt-api:0.11.2'
+    runtime 'io.jsonwebtoken:jjwt-impl:0.11.2',
+            'io.jsonwebtoken:jjwt-jackson:0.11.2'
+
+
     compile group: 'log4j', name: 'log4j', version: '1.2.12'
+    compile group: 'org.json', name: 'json', version: '20180130'
 }
