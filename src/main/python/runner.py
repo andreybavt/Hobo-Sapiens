@@ -4,10 +4,10 @@ import os
 import sys
 import time
 import traceback
+from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Union
 
-from dataclasses import dataclass
 from dataclasses_json import dataclass_json
 from prometheus_client import start_http_server, Gauge, Counter
 
@@ -34,8 +34,8 @@ def init_services():
     from services.avendre_alouer import AvendreAlouer
     from services.century21 import Century21
     from services.orpi import Orpi
-    from services.logicimmo import LogicImmo
-    from services.moteurimmo import MoteurImmo
+    # from services.logicimmo import LogicImmo
+    # from services.moteurimmo import MoteurImmo
     service_classes = [
         Orpi(current_filter, False),
         AvendreAlouer(current_filter, False),
@@ -44,13 +44,14 @@ def init_services():
         Figaro(current_filter, False),
         Laforet(current_filter, False),
         LeBonCoin(current_filter, False),
-        LogicImmo(current_filter, False),
+        # LogicImmo(current_filter, False),
         Pap(current_filter, False),
         Seloger(current_filter, False),
-        MoteurImmo(current_filter, True),
+        # MoteurImmo(current_filter, True),
 
         # DummyService
     ]
+    logging.info(f"Starting services: " + ','.join([s.get_service_name() for s in service_classes]))
     METRIC_NB_SERVICES.set(len(service_classes))
     return service_classes
 
