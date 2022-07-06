@@ -11,7 +11,7 @@ ImageHash==4.1.0
 importlib-metadata==1.7.0
 iniconfig==1.0.1
 jsonpickle==1.4.1
-lxml==4.5.2
+lxml==4.9.1
 more-itertools==8.4.0
 numpy==1.19.1
 packaging==20.4
